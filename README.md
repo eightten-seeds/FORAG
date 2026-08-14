@@ -1,2 +1,38 @@
-# FORAG
-面向户外功能服装养护知识分散、用户口语难以匹配专业资料的问题，构建支持答案溯源的RAG智能问答系统。
+# Fashion Care RAG
+
+户外功能服装智能养护 RAG 问答系统。
+
+当前仅完成 `IMPLEMENTATION_PLAN.md` 的阶段 1：工程初始化。Elasticsearch、知识库、Retriever、Qwen、LangGraph、问答 API 与评测均尚未实现。
+
+## 环境要求
+
+- Python 3.12
+- uv
+- Node.js 24 LTS
+- npm
+
+## 后端
+
+```powershell
+Copy-Item .env.example .env
+uv sync
+uv run uvicorn backend.app.main:app --reload
+```
+
+访问：<http://127.0.0.1:8000/docs>
+
+## 前端
+
+```powershell
+Set-Location frontend
+npm install
+npm run dev
+```
+
+访问：<http://localhost:5173>
+
+## 测试
+
+```powershell
+uv run pytest
+```
