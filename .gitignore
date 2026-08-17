@@ -13,6 +13,9 @@ venv/
 .tools/
 .uv-cache/
 .npm-cache/
+.torchdeps/
+FORAG*-pt*/
+FORAG*pytest-tmp/
 
 # Environment and secrets
 .env
@@ -40,6 +43,8 @@ logs/
 # Generated project data and evaluation results
 data/raw/*
 !data/raw/.gitkeep
+data/debug/*
+!data/debug/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 results/*

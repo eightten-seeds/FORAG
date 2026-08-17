@@ -7,6 +7,10 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "elasticsearch>=9.0,<10",
     "fastapi==0.141.1",
+    "beautifulsoup4>=4.12,<5",
+    "transformers>=4.45,<5",
+    "torch>=2.9,<3",
+    "playwright>=1.50,<2",
     "pydantic-settings>=2.6,<3",
     "uvicorn[standard]>=0.30,<1",
 ]

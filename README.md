@@ -36,3 +36,10 @@ npm run dev
 ```powershell
 uv run pytest
 ```
+
+## Local Elasticsearch on Windows
+
+If Elasticsearch fails during startup because automatic heap sizing exceeds
+available memory, start the existing installation with a process-local heap
+setting such as `ES_JAVA_OPTS=-Xms1g -Xmx1g`. Keep the existing security,
+certificate, and password configuration unchanged.
