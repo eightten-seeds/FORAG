@@ -18,9 +18,9 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 4 — Golden Dataset。
+Stage 4 — Golden Dataset：DONE / FROZEN。
 
-当前任务：完成 Candidate Golden Dataset 的 split leakage audit，并准备 Human Review；Stage 5 Retriever 尚未开始。
+当前任务：Stage 4 complete。Awaiting Stage 5–7 Hybrid Retrieval。
 
 ## Stage Status
 
@@ -30,7 +30,7 @@ Stage 4 — Golden Dataset。
 | Stage 2 Elasticsearch | DONE |
 | Stage 3 Knowledge Base | DONE |
 | Stage 3 Final Hardening | DONE |
-| Stage 4 Golden Dataset | IN PROGRESS |
+| Stage 4 Golden Dataset | DONE / FROZEN |
 | Stage 5 BM25 | NOT STARTED |
 | Stage 6 Dense Retrieval | NOT STARTED |
 | Stage 7 RRF + Cross-Encoder | NOT STARTED |
@@ -72,17 +72,18 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 - total：42
 - dev/test：26/16
-- retrieval-evaluable：38
-- negative：4
+- retrieval-evaluable：40
+- negative：2
 - Chinese/English：33/9
 - `kb_version`：`kb_v1`
-- Human Review：42 条均为 `pending`
-- Candidate Golden Dataset：尚未冻结
-- 当前阶段：split leakage audit + human review
+- Human Review：42 / 42 approved
+- Golden Dataset v1：FROZEN against `kb_v1`
+- invalid gold：0
+- semantic leakage：0
 
 ## Current Task
 
-完成 Stage 4：最终 split leakage audit、Human Review、必要修正、validator/test 通过，并冻结 Golden Dataset。
+Stage 4 complete。Golden Dataset v1 已完成最终审核并冻结。
 
 ## Current Blockers
 
@@ -90,11 +91,11 @@ None。未完成 Human Review 和 Golden Dataset 冻结不是阻塞项，而是�
 
 ## Next Gate
 
-Golden Dataset FROZEN。必须满足：Candidate review complete、required corrections complete、validator pass、tests pass、dev/test leakage accepted、Human Review complete，并建立 Git checkpoint；之后才可进入 Stage 5。
+Hybrid Retriever FROZEN。Stage 5–7 完成前，不得声称 BM25、Dense、RRF 或 Cross-Encoder 已完成。
 
 ## Next Stage
 
-Stage 5 — Hybrid Retrieval，目标为 BM25 Top20、Dense Top20、Python RRF Top30、Cross-Encoder 后取 Top5。这里只记录目标，不表示相关功能已实现。
+Stage 5–7 — Hybrid Retrieval，目标为 BM25 Top20、Dense Top20、Python RRF Top30、Cross-Encoder 后取 Top5。当前状态：NOT STARTED。
 
 ## Retrieval / Agent Status
 

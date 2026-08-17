@@ -2,7 +2,11 @@
 
 户外功能服装智能养护 RAG 问答系统。
 
-当前仅完成 `IMPLEMENTATION_PLAN.md` 的阶段 1：工程初始化。Elasticsearch、知识库、Retriever、Qwen、LangGraph、问答 API 与评测均尚未实现。
+已完成：Engineering Skeleton、Elasticsearch、Controlled Official Source Collection、Loader / Cleaner、Structure-aware Chunking、Metadata / Terminology、multilingual E5 Embedding、Elasticsearch Knowledge Base、KB Final Hardening、Golden Dataset v1。
+
+Golden Dataset v1：42 samples，dev/test = 26/16，Human Review complete，已冻结并绑定 `kb_v1`。
+
+尚未实现：BM25、Dense Retrieval、RRF、Cross-Encoder、Hybrid Retriever、Qwen / LangGraph、Web QA、Final Evaluation。
 
 ## 环境要求
 
