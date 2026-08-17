@@ -43,3 +43,9 @@ If Elasticsearch fails during startup because automatic heap sizing exceeds
 available memory, start the existing installation with a process-local heap
 setting such as `ES_JAVA_OPTS=-Xms1g -Xmx1g`. Keep the existing security,
 certificate, and password configuration unchanged.
+
+Implemented pipeline stages include controlled official-source collection,
+Loader/Cleaner, structure-aware Chunking, deterministic Metadata and
+Terminology, multilingual E5 embeddings, and the Elasticsearch knowledge
+base. Golden Dataset, retrieval, reranking, Qwen/LangGraph, and Web QA remain
+out of scope.

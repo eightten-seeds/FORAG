@@ -52,7 +52,9 @@ def collect_one(source, *, root=ROOT, browser_factory=None):
         browser = pw.chromium.launch(headless=True)
         try:
             page = browser.new_page()
-            page.goto(source["url"], wait_until="domcontentloaded", timeout=60000)
+            response = page.goto(source["url"], wait_until="domcontentloaded", timeout=60000)
+            if response is not None and response.status >= 400:
+                raise RuntimeError(f"HTTP status {response.status}")
             page.wait_for_timeout(1000)
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             page.wait_for_timeout(1000)

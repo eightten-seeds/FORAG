@@ -1,5 +1,5 @@
 import hashlib, json
-from scripts.collect_sources import build_manifest_record, load_approved, sha256_bytes, update_manifest
+from scripts.collect_sources import build_manifest_record, collect_one, load_approved, sha256_bytes, update_manifest
 
 def test_approved_sources_parse_and_unique():
     records = load_approved()
@@ -30,3 +30,34 @@ def test_idempotent_manifest_update(tmp_path):
 def test_failure_does_not_create_manifest(tmp_path):
     p = tmp_path / "sources.jsonl"
     assert not p.exists()
+
+
+class _Response:
+    def __init__(self, status): self.status = status
+
+
+class _Page:
+    url = "https://example.test"
+    def goto(self, *_args, **_kwargs): return _Response(404)
+    def wait_for_timeout(self, *_args): pass
+    def evaluate(self, *_args): pass
+    def content(self): return "<html>not used</html>"
+    def title(self): return "Not found"
+
+
+class _Browser:
+    def new_page(self): return _Page()
+    def close(self): pass
+
+
+class _Playwright:
+    chromium = type("Chromium", (), {"launch": staticmethod(lambda **_kwargs: _Browser())})()
+    def __enter__(self): return self
+    def __exit__(self, *_args): pass
+
+
+def test_http_error_does_not_write_raw_or_manifest(tmp_path):
+    source = load_approved()[0]
+    with __import__("pytest").raises(RuntimeError, match="HTTP status 404"):
+        collect_one(source, root=tmp_path, browser_factory=lambda: _Playwright())
+    assert not (tmp_path / "data/manifests/sources.jsonl").exists()

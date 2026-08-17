@@ -59,6 +59,7 @@ class ChunkRecord(BaseModel):
     source_title: str = Field(min_length=1)
     source_url: HttpUrl
     brand: str = Field(min_length=1)
+    language: str = Field(min_length=1)
     garment_type: list[str] = Field(default_factory=list)
     technology: list[str] = Field(default_factory=list)
     care_stage: list[str] = Field(default_factory=list)

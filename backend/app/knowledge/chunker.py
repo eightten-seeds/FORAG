@@ -87,15 +87,15 @@ def _token_count(tokenizer: Tokenizer, text: str) -> int:
     return len(tokenizer.encode(text, add_special_tokens=False))
 
 
-def _fallback_split(text: str, tokenizer: Tokenizer) -> list[str]:
+def _fallback_split(text: str, tokenizer: Tokenizer, max_tokens: int, overlap_tokens: int) -> list[str]:
     tokens = tokenizer.encode(text, add_special_tokens=False)
     if not tokens:
         return []
     result: list[str] = []
     start = 0
-    step = MAX_CHUNK_TOKENS - FALLBACK_OVERLAP_TOKENS
+    step = max_tokens - overlap_tokens
     while start < len(tokens):
-        end = min(start + MAX_CHUNK_TOKENS, len(tokens))
+        end = min(start + max_tokens, len(tokens))
         piece = tokenizer.decode(tokens[start:end], skip_special_tokens=True).strip()
         if piece:
             result.append(piece)
@@ -105,15 +105,15 @@ def _fallback_split(text: str, tokenizer: Tokenizer) -> list[str]:
     return result
 
 
-def _split_unit(unit: _Unit, tokenizer: Tokenizer) -> list[_Unit]:
-    if _token_count(tokenizer, unit.text) <= MAX_CHUNK_TOKENS:
+def _split_unit(unit: _Unit, tokenizer: Tokenizer, max_tokens: int, overlap_tokens: int) -> list[_Unit]:
+    if _token_count(tokenizer, unit.text) <= max_tokens:
         return [unit]
     lines = unit.text.splitlines()
     groups: list[str] = []
     current: list[str] = []
     for line in lines:
         candidate = "\n".join(current + [line])
-        if current and _token_count(tokenizer, candidate) > MAX_CHUNK_TOKENS:
+        if current and _token_count(tokenizer, candidate) > max_tokens:
             groups.append("\n".join(current))
             current = [line]
         else:
@@ -127,10 +127,10 @@ def _split_unit(unit: _Unit, tokenizer: Tokenizer) -> list[_Unit]:
 
     result: list[_Unit] = []
     for group in groups:
-        if _token_count(tokenizer, group) <= MAX_CHUNK_TOKENS:
+        if _token_count(tokenizer, group) <= max_tokens:
             result.append(_Unit(unit.section_title, group))
         else:
-            result.extend(_Unit(unit.section_title, piece) for piece in _fallback_split(group, tokenizer))
+            result.extend(_Unit(unit.section_title, piece) for piece in _fallback_split(group, tokenizer, max_tokens, overlap_tokens))
     return result
 
 
@@ -139,10 +139,10 @@ def _slug(value: str) -> str:
     return value or "section"
 
 
-def chunk_document(document: CleanDocument, tokenizer: Tokenizer) -> list[ChunkRecord]:
+def chunk_document(document: CleanDocument, tokenizer: Tokenizer, *, max_tokens: int = MAX_CHUNK_TOKENS, overlap_tokens: int = FALLBACK_OVERLAP_TOKENS) -> list[ChunkRecord]:
     units: list[_Unit] = []
     for unit in _parse_units(document):
-        units.extend(_split_unit(unit, tokenizer))
+        units.extend(_split_unit(unit, tokenizer, max_tokens, overlap_tokens))
     records: list[ChunkRecord] = []
     seen_content: set[str] = set()
     for unit in units:
@@ -158,14 +158,15 @@ def chunk_document(document: CleanDocument, tokenizer: Tokenizer) -> list[ChunkR
             document_id=document.document_id, source_id=document.source_id,
             chunk_order=order, content=content, source_title=document.source_title,
             source_url=document.source_url, brand=document.brand,
+            language=document.language,
             section_title=unit.section_title, content_hash=content_hash,
             kb_version="kb_v1",
         ))
     return records
 
 
-def chunk_documents(documents: list[CleanDocument], tokenizer: Tokenizer) -> list[ChunkRecord]:
+def chunk_documents(documents: list[CleanDocument], tokenizer: Tokenizer, *, max_tokens: int = MAX_CHUNK_TOKENS, overlap_tokens: int = FALLBACK_OVERLAP_TOKENS) -> list[ChunkRecord]:
     chunks: list[ChunkRecord] = []
     for document in documents:
-        chunks.extend(chunk_document(document, tokenizer))
+        chunks.extend(chunk_document(document, tokenizer, max_tokens=max_tokens, overlap_tokens=overlap_tokens))
     return chunks

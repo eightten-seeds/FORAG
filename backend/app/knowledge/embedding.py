@@ -9,6 +9,11 @@ from transformers import AutoModel, AutoTokenizer
 MODEL_NAME = "intfloat/multilingual-e5-small"
 
 
+def average_pool(last_hidden_state: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    mask = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+    return (last_hidden_state * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+
+
 class E5Embedder:
     def __init__(self, model_name: str = MODEL_NAME, device: str = "cpu") -> None:
         self.device = torch.device(device)
@@ -23,7 +28,7 @@ class E5Embedder:
         for start in range(0, len(texts), batch_size):
             batch = self.tokenizer(texts[start:start + batch_size], padding=True, truncation=True, max_length=512, return_tensors="pt")
             batch = {key: value.to(self.device) for key, value in batch.items()}
-            output = self.model(**batch).last_hidden_state[:, 0]
+            output = average_pool(self.model(**batch).last_hidden_state, batch["attention_mask"])
             output = F.normalize(output, p=2, dim=1)
             vectors.extend(output.cpu().tolist())
         return vectors, time.perf_counter() - started

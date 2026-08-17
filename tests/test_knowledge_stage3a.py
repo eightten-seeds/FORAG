@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -18,7 +19,7 @@ def _record(path: str) -> dict[str, object]:
         "language": "en",
         "accessed_at": "2026-08-14",
         "local_path": path,
-        "content_hash": "fixture-hash",
+        "content_hash": hashlib.sha256(b"# Washing\nWash gently.\n").hexdigest(),
         "enabled": True,
     }
 
@@ -32,7 +33,9 @@ def _write_manifest(tmp_path: Path, record: dict[str, object]) -> Path:
 def test_manifest_load_and_local_file(tmp_path: Path) -> None:
     source = tmp_path / "raw.txt"
     source.write_text("# Washing\nWash gently.\n", encoding="utf-8")
-    docs = load_sources(_write_manifest(tmp_path, _record("raw.txt")), repository_root=tmp_path)
+    record = _record("raw.txt")
+    record["content_hash"] = hashlib.sha256(source.read_bytes()).hexdigest()
+    docs = load_sources(_write_manifest(tmp_path, record), repository_root=tmp_path)
     assert len(docs) == 1
     assert docs[0].raw_content.startswith("# Washing")
 

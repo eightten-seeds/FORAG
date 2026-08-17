@@ -50,7 +50,11 @@ def load_sources(
         local_file = _resolve_path(source.local_path, root)
         if not local_file.is_file():
             raise FileNotFoundError(f"Source file not found: {local_file}")
-        content = local_file.read_text(encoding="utf-8")
+        content_bytes = local_file.read_bytes()
+        actual_hash = hashlib.sha256(content_bytes).hexdigest()
+        if source.content_hash and actual_hash != source.content_hash:
+            raise ManifestError(f"Content hash mismatch for {source.source_id}")
+        content = content_bytes.decode("utf-8")
         document_id = source.source_id
         documents.append(
             RawDocument(
@@ -63,7 +67,7 @@ def load_sources(
                 language=source.language,
                 accessed_at=source.accessed_at,
                 raw_content=content,
-                content_hash=source.content_hash or hashlib.sha256(content.encode()).hexdigest(),
+                content_hash=actual_hash,
             )
         )
     return documents

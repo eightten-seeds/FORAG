@@ -1,16 +1,25 @@
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
 from .models import ChunkRecord
 
 CARE_STAGES = ("washing", "drying", "dwr", "stain_removal", "storage", "repair_maintenance")
-TERMINOLOGY = {
-    "dwr": "durable water repellent",
-    "hardshell": "waterproof shell",
-    "down": "down insulation",
-    "synthetic insulation": "synthetic insulation",
-}
+def _load_terminology() -> dict[str, str]:
+    path = Path(__file__).resolve().parents[3] / "data/dictionaries/terminology.json"
+    if not path.is_file():
+        raise FileNotFoundError(f"Terminology dictionary not found: {path}")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("Terminology dictionary must be a JSON object")
+    result: dict[str, str] = {}
+    for key, value in data.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise ValueError("Terminology dictionary entries must map strings to strings")
+        result[key] = value
+    return result
 
 
 def _garment_type(chunk: ChunkRecord) -> list[str]:
@@ -56,7 +65,8 @@ def _care_stage(chunk: ChunkRecord) -> list[str]:
 
 def normalized_terms(content: str) -> list[str]:
     text = content.lower()
-    return [value for key, value in TERMINOLOGY.items() if re.search(rf"\b{re.escape(key)}\b", text, re.I)]
+    terms = _load_terminology()
+    return [value for key, value in terms.items() if re.search(rf"\b{re.escape(key)}\b", text, re.I)]
 
 
 def enrich_chunk(chunk: ChunkRecord) -> dict:
