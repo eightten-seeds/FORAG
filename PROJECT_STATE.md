@@ -18,9 +18,9 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 4 — Golden Dataset：DONE / FROZEN。
+Stage 5–7 — Hybrid Retrieval：IN PROGRESS。
 
-当前任务：Stage 4 complete。Awaiting Stage 5–7 Hybrid Retrieval。
+当前任务：Stage 5A Retrieval Foundation 已通过真实本地集成验收；下一步为 Stage 5B Hybrid Retrieval。
 
 ## Stage Status
 
@@ -31,8 +31,9 @@ Stage 4 — Golden Dataset：DONE / FROZEN。
 | Stage 3 Knowledge Base | DONE |
 | Stage 3 Final Hardening | DONE |
 | Stage 4 Golden Dataset | DONE / FROZEN |
-| Stage 5 BM25 | NOT STARTED |
-| Stage 6 Dense Retrieval | NOT STARTED |
+| Stage 5A Retrieval Foundation | DONE / PASS |
+| Stage 5B Hybrid Retrieval | NOT STARTED |
+| Stage 6 Dense Retrieval | INCLUDED IN STAGE 5A / PASS |
 | Stage 7 RRF + Cross-Encoder | NOT STARTED |
 | Stage 8 Qwen Query Analysis | NOT STARTED |
 | Stage 9 LangGraph | NOT STARTED |
@@ -83,7 +84,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 4 complete。Golden Dataset v1 已完成最终审核并冻结。
+Stage 5A Retrieval Foundation 已完成并通过真实本地集成验收：BM25 与 Dense Retrieval 均已实现并验证。Stage 5B Hybrid Retrieval 尚未开始。
 
 ## Current Blockers
 
@@ -91,15 +92,17 @@ None。未完成 Human Review 和 Golden Dataset 冻结不是阻塞项，而是�
 
 ## Next Gate
 
-Hybrid Retriever FROZEN。Stage 5–7 完成前，不得声称 BM25、Dense、RRF 或 Cross-Encoder 已完成。
+Stage 5B Hybrid Retrieval。Hybrid Retriever 本身尚未 FROZEN。
 
 ## Next Stage
 
-Stage 5–7 — Hybrid Retrieval，目标为 BM25 Top20、Dense Top20、Python RRF Top30、Cross-Encoder 后取 Top5。当前状态：NOT STARTED。
+Stage 5B — Hybrid Retrieval，目标为 Python RRF Top30、Cross-Encoder 后取 Top5。当前状态：NOT STARTED。
 
 ## Retrieval / Agent Status
 
-Retriever、BM25、Dense Retrieval、RRF、Cross-Encoder、Qwen、LangGraph、FastAPI 问答和 Vue 问答均未作为本阶段任务实现。
+BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
+Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
+RRF、Cross-Encoder、Unified Hybrid Retriever、Qwen、LangGraph、FastAPI 问答和 Vue 问答尚未实现。
 
 ## Git Checkpoints
 

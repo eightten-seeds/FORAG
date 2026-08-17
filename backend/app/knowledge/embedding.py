@@ -32,3 +32,11 @@ class E5Embedder:
             output = F.normalize(output, p=2, dim=1)
             vectors.extend(output.cpu().tolist())
         return vectors, time.perf_counter() - started
+
+    def encode_query(self, query_text: str) -> list[float]:
+        """Encode one E5 query without changing frozen document embeddings."""
+        cleaned_query = query_text.strip()
+        if not cleaned_query:
+            raise ValueError("query_text must not be empty")
+        vectors, _ = self.encode([f"query: {cleaned_query}"])
+        return vectors[0]
