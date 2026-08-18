@@ -642,10 +642,12 @@ backend/app/retrieval/bm25.py
 输入：
 
 ```text
-lexical_terms_en
-+
-structured_query
+bm25_query_text: str | None
+brand: str | None
+technologies: list[str]
 ```
+
+`lexical_terms_en` 与 `structured_query` 不直接传入 BM25；它们必须先由 Query Analysis upstream adapter 转换为以上 Frozen 接口字段。
 
 例如：
 
@@ -668,8 +670,8 @@ normalized_terms
 Metadata：
 
 ```text
-brand
-technology
+brand → brand
+technology → technologies
 ```
 
 只做简单 Boost，不做 Hard Filter。
@@ -892,6 +894,30 @@ structured_query.brand      → brand
 structured_query.technology → technologies
 ```
 
+`lexical_terms_en` 的 upstream adapter 固定为：
+
+```python
+terms = [
+    term.strip()
+    for term in lexical_terms_en
+    if isinstance(term, str) and term.strip()
+]
+bm25_query_text = " ".join(terms) if terms else None
+```
+
+随后调用：
+
+```python
+HybridRetriever.retrieve(
+    original_query=original_query,
+    bm25_query_text=bm25_query_text,
+    brand=brand,
+    technologies=technologies,
+)
+```
+
+空的 `lexical_terms_en` 必须转换为 `None`，由 Frozen Retriever 按现有行为 fallback 到 `original_query`。
+
 `structured_query` 不直接整体传入 Retriever。`garment_type`、`issue_type`、`intent`、`care_stage` 等当前不支持的字段保留在 Agent / Query Analysis state。Query Analysis adapts to the Frozen Retriever；Frozen Retriever 不为 Query Analysis 修改内部参数或实现。
 
 内部：
@@ -996,7 +1022,7 @@ qwen3.7-plus
 
 ```text
 lexical_terms_en
-→ BM25
+→ trim/remove empty → join with single spaces → bm25_query_text
 
 original_query
 → Dense

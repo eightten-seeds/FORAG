@@ -104,6 +104,8 @@ Document：
 Lexical Path
 → 中文概念识别
 → 英文专业检索词
+→ trim / remove empty / join with single spaces
+→ bm25_query_text
 → BM25
 
 Semantic Path
@@ -270,7 +272,18 @@ Dense
 → original_query
 ```
 
-上述 Query Analysis 输出必须映射到 Frozen Hybrid Retriever 的现有接口：`lexical_terms_en` → `bm25_query_text`，`structured_query.brand` → `brand`，`structured_query.technology` → `technologies`。`structured_query` 不整体传入 Retriever；`garment_type`、`issue_type`、`intent`、`care_stage` 保留在 Agent / Query Analysis state。
+上述 Query Analysis 输出必须映射到 Frozen Hybrid Retriever 的现有接口：`structured_query.brand` → `brand`，`structured_query.technology` → `technologies`。`lexical_terms_en` 使用确定性的 upstream adapter：
+
+```python
+terms = [
+    term.strip()
+    for term in lexical_terms_en
+    if isinstance(term, str) and term.strip()
+]
+bm25_query_text = " ".join(terms) if terms else None
+```
+
+因此，`["GORE-TEX", "DWR", "water repellency"]` 转换为 `"GORE-TEX DWR water repellency"`；清洗后为空时传入 `None`，由 Frozen Retriever fallback 到 `original_query`。`structured_query` 不整体传入 Retriever；`garment_type`、`issue_type`、`intent`、`care_stage` 保留在 Agent / Query Analysis state。
 
 这样少一次 LLM API 调用。
 
@@ -345,7 +358,7 @@ garment_type
 care_stage
 ```
 
-Stage 5C 冻结的 BM25 / Hybrid Retriever 输入接口仅支持 `brand` 与 `technologies`；Query Analysis 的 `technology` 可映射到 `technologies`。`garment_type`、`issue_type`、`intent` 暂留在 Agent State 或后续模块，`care_stage` 当前没有 Retriever 输入接口；不得为这些字段修改 Frozen Retriever。
+ES mapping 可以存在 `brand`、`technology`、`garment_type`、`care_stage` 字段；但 Stage 5C 冻结的 BM25 / Hybrid Retriever query/filter/boost 接口实际只支持 `brand` 与 `technology` / `technologies`。`garment_type`、`care_stage`、`issue_type`、`intent` 当前不进入 Frozen Retriever；不得为这些字段修改 Frozen Retriever。
 
 逻辑关系：
 
@@ -354,13 +367,13 @@ Stage 5C 冻结的 BM25 / Hybrid Retriever 输入接口仅支持 `brand` 与 `te
                     │
         ┌───────────┴───────────┐
         ↓                       ↓
-全文相关性                  结构化匹配
-BM25                       term / should
+全文相关性                  Frozen 接口支持的结构化匹配
+BM25                       term / should（仅 brand / technology）
         ↓                       ↓
 content                   brand
 title                     technology
-section                   garment_type
-normalized_terms          care_stage
+section                   （garment_type / care_stage 不进入当前接口）
+normalized_terms
 ```
 
 第一版 Field Boost：
