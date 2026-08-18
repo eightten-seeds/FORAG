@@ -1,4 +1,4 @@
-"""Run the Stage 14 Final Pipeline + RAGChecker evaluation."""
+"""Run the Stage 14 Final Pipeline + RAGChecker evaluation (TEST-only)."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from backend.app.evaluation import (
     build_final_metrics,
     evaluate_final_test,
     run_ragchecker_evaluation,
+    run_stage14_preflight,
 )
 from backend.app.knowledge.embedding import E5Embedder
 from backend.app.retrieval.bm25 import BM25Retriever
@@ -32,7 +33,7 @@ DEFAULT_RAGCHECKER_OUTPUT = ROOT / "results/ragchecker_results.json"
 DEFAULT_METRICS_OUTPUT = ROOT / "results/final_metrics.json"
 
 
-def _read_records(path: Path, split: str) -> list[dict]:
+def _read_records(path: Path, split: str = "test") -> list[dict]:
     records = [
         json.loads(line)
         for line in path.read_text(encoding="utf-8").splitlines()
@@ -50,12 +51,41 @@ def run_stage14_evaluation(
     metrics_output_path: Path = DEFAULT_METRICS_OUTPUT,
     official_run_id: str | None = None,
     preflight_only: bool = False,
+    require_clean_git: bool | None = None,
 ) -> dict[str, object]:
-    """Execute the complete Stage 14 evaluation workflow."""
-    if preflight_only:
-        return {"status": "preflight_ok"}
+    """Execute the complete Stage 14 evaluation workflow with preflight gating (TEST-only).
+
+    Provenance Contract:
+    - Official full runs (`preflight_only=False`) strictly enforce `require_clean_git=True`.
+    - Preflight-only diagnostic runs default to `require_clean_git=False` unless explicitly requested.
+    """
+    if split != "test":
+        raise ValueError(
+            f"Stage 14 official runner accepts TEST split only; received split='{split}'."
+        )
+
+    # Enforce strict clean Git provenance on official runs by default
+    enforce_clean_git = True if require_clean_git is None and not preflight_only else bool(require_clean_git)
 
     settings = get_settings()
+
+    # -------------------------------------------------------------
+    # 1. Real Infrastructure Preflight Check (Gating before dataset access)
+    # -------------------------------------------------------------
+    preflight_result = run_stage14_preflight(
+        settings=settings,
+        pipeline_output_path=pipeline_output_path,
+        ragchecker_output_path=ragchecker_output_path,
+        metrics_output_path=metrics_output_path,
+        require_clean_git=enforce_clean_git,
+    )
+
+    if preflight_only:
+        return preflight_result
+
+    # -------------------------------------------------------------
+    # 2. Pipeline Execution (Only runs after preflight succeeds)
+    # -------------------------------------------------------------
     es_client = create_elasticsearch_client(settings)
     run_id = official_run_id or f"stage14_{uuid.uuid4().hex[:12]}"
     run_timestamp = datetime.now(timezone.utc).isoformat()
@@ -92,12 +122,12 @@ def run_stage14_evaluation(
             retriever=retriever,
         )
 
-        records = _read_records(dataset_path, split=split)
+        records = _read_records(dataset_path, split="test")
         execution_result, rag_results = evaluate_final_test(
             records,
             pipeline=pipeline,
             settings=settings,
-            split=split,
+            split="test",
         )
 
         pipeline_output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -141,24 +171,30 @@ def run_stage14_evaluation(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Stage 14 Final Evaluation Runner")
+    parser = argparse.ArgumentParser(description="Stage 14 Final Evaluation Runner (TEST-only)")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
-    parser.add_argument("--split", type=str, default="test", choices=["test", "dev"])
     parser.add_argument("--pipeline-output", type=Path, default=DEFAULT_PIPELINE_OUTPUT)
     parser.add_argument("--ragchecker-output", type=Path, default=DEFAULT_RAGCHECKER_OUTPUT)
     parser.add_argument("--metrics-output", type=Path, default=DEFAULT_METRICS_OUTPUT)
     parser.add_argument("--official-run-id", type=str, default=None)
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument(
+        "--require-clean-git",
+        action="store_true",
+        default=None,
+        help="Explicitly enforce clean Git provenance (mandatory on official full runs)",
+    )
     args = parser.parse_args()
 
     results = run_stage14_evaluation(
         dataset_path=args.dataset,
-        split=args.split,
+        split="test",
         pipeline_output_path=args.pipeline_output,
         ragchecker_output_path=args.ragchecker_output,
         metrics_output_path=args.metrics_output,
         official_run_id=args.official_run_id,
         preflight_only=args.preflight_only,
+        require_clean_git=args.require_clean_git,
     )
     print(json.dumps(results, ensure_ascii=False, indent=2))
 

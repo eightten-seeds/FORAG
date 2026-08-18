@@ -10,9 +10,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+from ragchecker import RAGChecker
 
 from backend.app.agent.answer_models import FinalResponse, SourceCitation
-from backend.app.agent.state import initialize_agent_state
 from backend.app.config import Settings
 from backend.app.evaluation.final_metrics import build_final_metrics
 from backend.app.evaluation.final_pipeline import (
@@ -21,13 +21,13 @@ from backend.app.evaluation.final_pipeline import (
 )
 from backend.app.evaluation.models import EvaluationSampleResult
 from backend.app.evaluation.ragchecker_adapter import (
-    QwenRAGCheckerLLMAdapter,
     map_evaluation_to_ragchecker_results,
     map_sample_to_ragchecker_result,
     run_ragchecker_evaluation,
 )
 from backend.app.evaluation.runner import evaluate_final_test
 from backend.app.retrieval.models import RetrievalCandidate
+from scripts.evaluate_final_system import run_stage14_evaluation
 
 
 @pytest.fixture
@@ -543,7 +543,7 @@ def test_no_sample_dropping(mock_settings):
 
 
 # ---------------------------------------------------------------------------
-# 12. final_metrics serialization
+# 12. final_metrics serialization (with unit percent contract)
 # ---------------------------------------------------------------------------
 def test_final_metrics_serialization():
     ragchecker_metrics = {
@@ -557,7 +557,7 @@ def test_final_metrics_serialization():
     }
 
     metrics = build_final_metrics(
-        system_commit="d386f0720f07aa5f6446f37f939a5b96e7a831da",
+        system_commit="459081558381b3ea57a9bd3db6bc5ba1c479d426",
         kb_version="kb_v1",
         test_samples=16,
         retrieval_evaluable_samples=15,
@@ -573,15 +573,16 @@ def test_final_metrics_serialization():
         timestamp="2026-08-18T12:00:00Z",
     )
 
-    assert metrics["system_commit"] == "d386f0720f07aa5f6446f37f939a5b96e7a831da"
+    assert metrics["system_commit"] == "459081558381b3ea57a9bd3db6bc5ba1c479d426"
     assert metrics["kb_version"] == "kb_v1"
     assert metrics["test_samples"] == 16
     assert metrics["retrieval_evaluable_samples"] == 15
-    assert metrics["success_at_5"] == 0.8
-    assert metrics["recall_at_5"] == 0.75
+    assert metrics["success_at_5"] == 80.0
+    assert metrics["recall_at_5"] == 75.0
     assert metrics["claim_recall"] == 82.5
     assert metrics["context_precision"] == 78.0
     assert metrics["faithfulness"] == 91.2
+    assert metrics["metric_unit"] == "percent"
     assert metrics["official_run_id"] == "official_stage14_run_001"
     assert metrics["timestamp"] == "2026-08-18T12:00:00Z"
 
@@ -596,7 +597,7 @@ def test_results_paths_ignored():
 
 
 # ---------------------------------------------------------------------------
-# 14. Final runner cannot accidentally run DEV as official final TEST
+# 14. Final runner is strictly TEST-only and rejects DEV split
 # ---------------------------------------------------------------------------
 def test_final_runner_split_validation(mock_settings):
     pipeline = FinalEvaluationPipeline(
@@ -609,12 +610,20 @@ def test_final_runner_split_validation(mock_settings):
         model=mock_settings.qwen_eval_model,
     )
 
-    with pytest.raises(ValueError, match="split must be one of"):
+    # 1. Non-test split strings must be rejected
+    with pytest.raises(ValueError, match="Stage 14 final evaluation accepts TEST split only"):
+        evaluate_final_test([], pipeline=pipeline, settings=mock_settings, split="dev")
+
+    with pytest.raises(ValueError, match="Stage 14 final evaluation accepts TEST split only"):
         evaluate_final_test([], pipeline=pipeline, settings=mock_settings, split="invalid_split")
 
-    dev_records = [{"question": "Q", "split": "dev"}]
+    # 2. Empty dataset for test split must be rejected
     with pytest.raises(ValueError, match="No records found for split='test'"):
-        evaluate_final_test(dev_records, pipeline=pipeline, settings=mock_settings, split="test")
+        evaluate_final_test([], pipeline=pipeline, settings=mock_settings, split="test")
+
+    # 3. Stage 14 runner function must reject split != "test"
+    with pytest.raises(ValueError, match="Stage 14 official runner accepts TEST split only"):
+        run_stage14_evaluation(split="dev")
 
 
 # ---------------------------------------------------------------------------
@@ -651,10 +660,10 @@ def test_official_run_metadata(mock_settings):
     )
 
     records = [{"question": "Q", "split": "test", "gold_chunk_ids": ["c1"], "category": "care", "kb_version": "kb_v1"}]
-    exec_result, _ = evaluate_final_test(records, pipeline=pipeline, settings=mock_settings, split="test", system_commit="d386f072")
+    exec_result, _ = evaluate_final_test(records, pipeline=pipeline, settings=mock_settings, split="test", system_commit="4590815")
 
     assert exec_result.split == "test"
-    assert exec_result.system_commit == "d386f072"
+    assert exec_result.system_commit == "4590815"
     assert exec_result.kb_version == "kb_v1"
     assert exec_result.pipeline_llm_model == mock_settings.qwen_eval_model
     assert exec_result.embedding_model == mock_settings.embedding_model
@@ -662,7 +671,26 @@ def test_official_run_metadata(mock_settings):
 
 
 # ---------------------------------------------------------------------------
-# 16. RAGChecker Adapter Smoke Test (mock LLM)
+# 16. Real RAGChecker Construction Smoke (real class, fake callback, no external network)
+# ---------------------------------------------------------------------------
+def test_real_ragchecker_construction_smoke(mock_settings):
+    def fake_custom_llm_api_func(prompts: list[str]) -> list[str]:
+        return ["fake claim result" for _ in prompts]
+
+    checker = RAGChecker(
+        extractor_name=mock_settings.ragchecker_extractor_model,
+        checker_name=mock_settings.ragchecker_checker_model,
+        custom_llm_api_func=fake_custom_llm_api_func,
+    )
+    assert checker.extractor is not None
+    assert checker.checker is not None
+    assert checker.custom_llm_api_func is fake_custom_llm_api_func
+    assert checker.extractor.model == "qwen3.7-plus-2026-05-26"
+    assert checker.checker.model == "qwen3.7-plus-2026-05-26"
+
+
+# ---------------------------------------------------------------------------
+# 17. RAGChecker Adapter Evaluation Smoke (mock evaluate method)
 # ---------------------------------------------------------------------------
 def test_ragchecker_adapter_synthetic_smoke(mock_settings):
     sample = EvaluationSampleResult(
@@ -698,3 +726,254 @@ def test_ragchecker_adapter_synthetic_smoke(mock_settings):
     )
     assert metrics["retriever_metrics"]["claim_recall"] == 100.0
     assert metrics["generator_metrics"]["faithfulness"] == 100.0
+
+
+# ---------------------------------------------------------------------------
+# 18. Preflight does not access dataset or call pipeline
+# ---------------------------------------------------------------------------
+def test_preflight_does_not_access_dataset_or_pipeline(mock_settings, tmp_path, monkeypatch):
+    pipeline_called = False
+    dataset_read = False
+
+    class SpyPipeline:
+        def __init__(self, *args, **kwargs):
+            nonlocal pipeline_called
+            pipeline_called = True
+
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        lambda s: MagicMock(info=lambda: {"version": {"number": "9.5.1"}}),
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_local_retrieval_models",
+        lambda s: None,
+    )
+
+    fake_dataset = tmp_path / "dataset.jsonl"
+    fake_dataset.write_text('{"question": "secret", "split": "test"}\n', encoding="utf-8")
+
+    from scripts.evaluate_final_system import run_stage14_evaluation
+
+    res = run_stage14_evaluation(
+        dataset_path=fake_dataset,
+        split="test",
+        pipeline_output_path=tmp_path / "pipe.json",
+        ragchecker_output_path=tmp_path / "rag.json",
+        metrics_output_path=tmp_path / "metrics.json",
+        preflight_only=True,
+    )
+
+    assert res["status"] == "preflight_ok"
+    assert res["test_content_accessed"] is False
+    assert res["external_qwen_calls"] == 0
+    assert not pipeline_called
+
+
+# ---------------------------------------------------------------------------
+# 19. Preflight does not call external Qwen
+# ---------------------------------------------------------------------------
+def test_preflight_does_not_call_external_qwen(mock_settings, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        lambda s: MagicMock(info=lambda: {"version": {"number": "9.5.1"}}),
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_local_retrieval_models",
+        lambda s: None,
+    )
+
+    # Monkeypatch transport to raise if called
+    monkeypatch.setattr(
+        "backend.app.llm.client.QwenOpenAICompatibleClient.complete_structured",
+        MagicMock(side_effect=RuntimeError("External LLM called during preflight!")),
+    )
+
+    from backend.app.evaluation.preflight import run_stage14_preflight
+
+    res = run_stage14_preflight(
+        mock_settings,
+        pipeline_output_path=tmp_path / "pipe.json",
+        ragchecker_output_path=tmp_path / "rag.json",
+        metrics_output_path=tmp_path / "metrics.json",
+        skip_heavy_models=True,
+    )
+    assert res["status"] == "preflight_ok"
+    assert res["external_qwen_calls"] == 0
+
+
+# ---------------------------------------------------------------------------
+# 20. Preflight missing spaCy model fails with guidance
+# ---------------------------------------------------------------------------
+def test_preflight_missing_spacy_model_fails(mock_settings, tmp_path, monkeypatch):
+    import spacy
+    monkeypatch.setattr(
+        spacy,
+        "load",
+        MagicMock(side_effect=OSError("Can't find model 'en_core_web_sm'")),
+    )
+
+    from backend.app.evaluation.preflight import PreflightError, check_ragchecker_and_spacy
+
+    with pytest.raises(PreflightError, match="python -m spacy download en_core_web_sm"):
+        check_ragchecker_and_spacy(mock_settings)
+
+
+# ---------------------------------------------------------------------------
+# 21. Preflight unavailable ES fails
+# ---------------------------------------------------------------------------
+def test_preflight_unavailable_elasticsearch_fails(mock_settings, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        MagicMock(side_effect=RuntimeError("Connection refused to ES")),
+    )
+
+    from backend.app.evaluation.preflight import PreflightError, check_elasticsearch
+
+    with pytest.raises(PreflightError, match="Elasticsearch preflight connection failed"):
+        check_elasticsearch(mock_settings)
+
+
+# ---------------------------------------------------------------------------
+# 22. Preflight dirty git fails when enforced
+# ---------------------------------------------------------------------------
+def test_preflight_dirty_git_fails_when_enforced(tmp_path, monkeypatch):
+    from backend.app.evaluation.preflight import PreflightError, check_git_provenance
+
+    def mock_check_output(cmd, cwd=None, text=True):
+        if cmd == ["git", "rev-parse", "HEAD"]:
+            return "commit_a"
+        if cmd == ["git", "rev-parse", "origin/main"]:
+            return "commit_b"  # Mismatch
+        if cmd == ["git", "diff", "--name-only"]:
+            return ""
+        if cmd == ["git", "diff", "--cached", "--name-only"]:
+            return ""
+        return ""
+
+    monkeypatch.setattr("subprocess.check_output", mock_check_output)
+
+    with pytest.raises(PreflightError, match="Git HEAD .* does not match origin/main"):
+        check_git_provenance(require_clean=True, cwd=tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# 23. Preflight missing settings fails
+# ---------------------------------------------------------------------------
+def test_preflight_missing_settings_fails():
+    from backend.app.evaluation.preflight import PreflightError, check_settings
+
+    invalid_settings = Settings(
+        dashscope_api_key="",
+        qwen_eval_model="",
+    )
+    with pytest.raises(PreflightError, match="Settings error"):
+        check_settings(invalid_settings)
+
+
+# ---------------------------------------------------------------------------
+# 24. Preflight successful synthetic infrastructure returns preflight_ok
+# ---------------------------------------------------------------------------
+def test_preflight_successful_synthetic_infrastructure(mock_settings, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        lambda s: MagicMock(info=lambda: {"version": {"number": "9.5.1"}}),
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_local_retrieval_models",
+        lambda s: None,
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_git_provenance",
+        lambda require_clean=True: {"head": "c1", "origin_main": "c1"},
+    )
+
+    from backend.app.evaluation.preflight import run_stage14_preflight
+
+    res = run_stage14_preflight(
+        mock_settings,
+        pipeline_output_path=tmp_path / "pipe.json",
+        ragchecker_output_path=tmp_path / "rag.json",
+        metrics_output_path=tmp_path / "metrics.json",
+        require_clean_git=True,
+        skip_heavy_models=True,
+    )
+
+    assert res["status"] == "preflight_ok"
+    assert res["git_provenance"] == "ok"
+    assert res["settings"] == "ok"
+    assert res["elasticsearch"] == "ok"
+    assert res["ragchecker"] == "0.1.9"
+    assert res["spacy_model"] == "en_core_web_sm"
+    assert res["output_paths"] == "ok"
+
+
+# ---------------------------------------------------------------------------
+# 25. Preflight does not create final result artifacts
+# ---------------------------------------------------------------------------
+def test_preflight_does_not_create_final_result_artifacts(mock_settings, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        lambda s: MagicMock(info=lambda: {"version": {"number": "9.5.1"}}),
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_local_retrieval_models",
+        lambda s: None,
+    )
+
+    pipe_path = tmp_path / "stage14_final_pipeline.json"
+    rag_path = tmp_path / "ragchecker_results.json"
+    metrics_path = tmp_path / "final_metrics.json"
+
+    from backend.app.evaluation.preflight import run_stage14_preflight
+
+    run_stage14_preflight(
+        mock_settings,
+        pipeline_output_path=pipe_path,
+        ragchecker_output_path=rag_path,
+        metrics_output_path=metrics_path,
+        skip_heavy_models=True,
+    )
+
+    assert not pipe_path.exists()
+    assert not rag_path.exists()
+    assert not metrics_path.exists()
+
+
+# ---------------------------------------------------------------------------
+# 26. Official evaluation run enforces clean Git by default
+# ---------------------------------------------------------------------------
+def test_official_run_enforces_clean_git_by_default(mock_settings, tmp_path, monkeypatch):
+    from backend.app.evaluation.preflight import PreflightError
+    from scripts.evaluate_final_system import run_stage14_evaluation
+
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.create_elasticsearch_client",
+        lambda s: MagicMock(info=lambda: {"version": {"number": "9.5.1"}}),
+    )
+    monkeypatch.setattr(
+        "backend.app.evaluation.preflight.check_local_retrieval_models",
+        lambda s: None,
+    )
+
+    def mock_check_output(cmd, cwd=None, text=True):
+        if cmd == ["git", "rev-parse", "HEAD"]:
+            return "commit_a"
+        if cmd == ["git", "rev-parse", "origin/main"]:
+            return "commit_b"  # Mismatch
+        return ""
+
+    monkeypatch.setattr("subprocess.check_output", mock_check_output)
+
+    fake_dataset = tmp_path / "dataset.jsonl"
+    fake_dataset.write_text('{"question": "secret", "split": "test"}\n', encoding="utf-8")
+
+    # Official run (preflight_only=False) must fail if git is dirty / mismatched
+    with pytest.raises(PreflightError, match="Git HEAD .* does not match origin/main"):
+        run_stage14_evaluation(
+            dataset_path=fake_dataset,
+            split="test",
+            pipeline_output_path=tmp_path / "pipe.json",
+            ragchecker_output_path=tmp_path / "rag.json",
+            metrics_output_path=tmp_path / "metrics.json",
+            preflight_only=False,
+        )

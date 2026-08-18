@@ -70,7 +70,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 
 - Query Analysis, Frozen Hybrid Retriever, shared LLM transport, Agent State contract, Evidence Judge, Query Rewrite, and LangGraph routing: IMPLEMENTED / VERIFIED
 - Max-one-rewrite retrieval loop: IMPLEMENTED / VERIFIED
-- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration: IMPLEMENTED / VERIFIED; Vue QA integration: IMPLEMENTED / VERIFIED; final full-system evaluation: NOT IMPLEMENTED
+- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration: IMPLEMENTED / VERIFIED; Vue QA integration: IMPLEMENTED / VERIFIED; Stage 14 final evaluation harness: IMPLEMENTED / CONTRACT FROZEN; Official Golden TEST and Formal RAGChecker: NOT RUN.
 
 ## Stage Status
 
@@ -95,6 +95,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 11A Backend Runtime + RAGService + FastAPI | DONE / PASS |
 | Stage 11B Vue + Browser End-to-End | DONE / PASS |
 | Stage 13 Integrated DEV Evaluation | DONE / PASS |
+| Stage 14 Final Evaluation Contract Freeze | IMPLEMENTED / FROZEN |
 
 ## Frozen Components
 
@@ -141,7 +142,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 13 — Integrated DEV Evaluation = DONE / PASS. The frozen system reproduced the Stage 8B integrated DEV baseline: 26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, and Recall@5 62.5%. Stage 5C standalone formal TEST remains 12/16 = 75.0%; Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN. Stage 14 Final TEST and RAGChecker remain NOT RUN.
+Stage 14 Final Evaluation Harness = IMPLEMENTED / CONTRACT FROZEN. Stage 13 Integrated DEV Evaluation = DONE / PASS (26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, Recall@5 62.5%). Official Golden TEST = NOT RUN. Formal RAGChecker = NOT RUN. Final metrics = NOT AVAILABLE. Stage 14 environment prerequisite: `en_core_web_sm` must be installed and loadable. Official Run Provenance Contract: Official Stage 14 evaluation requires `HEAD == origin/main`, zero tracked unstaged diff, zero tracked staged diff, and fixed model snapshots (`qwen3.7-plus-2026-05-26`). Real preflight gating is implemented before dataset access.
 
 ## Current Blockers
 
@@ -149,11 +150,11 @@ None.
 
 ## Next Gate
 
-Stage 14 — Final TEST + RAGChecker.
+Stage 14 — Official TEST + RAGChecker.
 
 ## Next Stage
 
-Stage 14 — Final TEST + RAGChecker.
+Stage 14 — Official TEST + RAGChecker.
 
 ## Retrieval / Agent Status
 
@@ -162,11 +163,14 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；final full-system evaluation 尚未实现。
+LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；Stage 14 final evaluation harness：IMPLEMENTED / CONTRACT FROZEN；Official Golden TEST 与 Formal RAGChecker：NOT RUN。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, Stage 11A/11B end-to-end web integration, and Stage 13 integrated DEV evaluation are IMPLEMENTED / VERIFIED. Final TEST and RAGChecker remain unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, Stage 11A/11B end-to-end web integration, and Stage 13 integrated DEV evaluation are IMPLEMENTED / VERIFIED. Stage 14 Final Evaluation Harness is IMPLEMENTED / CONTRACT FROZEN; Official Golden TEST and Formal RAGChecker remain NOT RUN.
 
 ## Git Checkpoints
+
+- `4590815 feat: freeze final evaluation contract` (Stage 14 Final Evaluation Contract Freeze)
+- `d386f07 feat: complete integrated dev evaluation` (Stage 13 Integrated DEV Evaluation)
 
 - `e25f6ea feat: complete vue browser integration` (Stage 11B Vue + Browser End-to-End)
 - `227e543 feat: integrate rag backend api`（Stage 11A Backend Runtime + RAGService + FastAPI）

@@ -13,7 +13,7 @@ from backend.app.config import Settings
 from backend.app.evaluation.final_pipeline import FinalEvaluationPipeline
 from backend.app.evaluation.models import EvaluationSampleResult, FinalPipelineExecutionResult
 from backend.app.evaluation.ragchecker_adapter import map_evaluation_to_ragchecker_results
-from backend.app.retrieval.evaluation import NON_RETRIEVAL_CATEGORIES, VALID_SPLITS
+from backend.app.retrieval.evaluation import NON_RETRIEVAL_CATEGORIES
 
 
 def get_system_commit(cwd: Path | None = None) -> str:
@@ -39,16 +39,17 @@ def evaluate_final_test(
     """Execute evaluation over the final frozen pipeline with leakage boundaries.
 
     Strict Contracts:
-    1. Only `question` enters the Agent Pipeline (Query Analysis -> Hybrid Retrieval -> Judge -> ...).
-    2. `gold_chunk_ids`, `gt_answer`, and `category` are unavailable to all pipeline components
+    1. Stage 14 evaluation is strictly TEST-only; any other split is rejected.
+    2. Only `question` enters the Agent Pipeline (Query Analysis -> Hybrid Retrieval -> Judge -> ...).
+    3. `gold_chunk_ids`, `gt_answer`, and `category` are unavailable to all pipeline components
        and are read strictly after `FinalResponse` and final evidence are fixed.
-    3. Final Evidence Top-5 (second pass if rewritten, first pass otherwise) is scored for Recall@5.
-    4. Terminal responses (`needs_more_information`, `insufficient_evidence`) are retained
+    4. Final Evidence Top-5 (second pass if rewritten, first pass otherwise) is scored for Recall@5.
+    5. Terminal responses (`needs_more_information`, `insufficient_evidence`) are retained
        and mapped to RAGChecker without alteration or dropping.
-    5. Non-retrieval categories are excluded from Recall@5 calculation according to contract.
+    6. Non-retrieval categories are excluded from Recall@5 calculation according to contract.
     """
-    if split not in VALID_SPLITS:
-        raise ValueError(f"split must be one of {sorted(VALID_SPLITS)}")
+    if split != "test":
+        raise ValueError(f"Stage 14 final evaluation accepts TEST split only; received split='{split}'.")
 
     filtered_records = [r for r in records if r.get("split") == split]
     if not filtered_records:

@@ -9,6 +9,10 @@ from backend.app.evaluation.models import (
     EvaluationSampleResult,
     FinalPipelineExecutionResult,
 )
+from backend.app.evaluation.preflight import (
+    PreflightError,
+    run_stage14_preflight,
+)
 from backend.app.evaluation.ragchecker_adapter import (
     QwenRAGCheckerLLMAdapter,
     map_evaluation_to_ragchecker_results,
@@ -21,6 +25,7 @@ __all__ = [
     "EvaluationSampleResult",
     "FinalEvaluationPipeline",
     "FinalPipelineExecutionResult",
+    "PreflightError",
     "QwenRAGCheckerLLMAdapter",
     "build_final_evaluation_pipeline",
     "build_final_metrics",
@@ -28,4 +33,5 @@ __all__ = [
     "map_evaluation_to_ragchecker_results",
     "map_sample_to_ragchecker_result",
     "run_ragchecker_evaluation",
+    "run_stage14_preflight",
 ]
