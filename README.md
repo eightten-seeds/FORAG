@@ -9,6 +9,7 @@ Golden Dataset v1：42 samples，dev/test = 26/16，Human Review complete，已�
 已实现：BM25、Dense → RRF → Cross-Encoder → Top5 的 Hybrid Retriever；Stage 5C 已 DONE / PASS。
 Hybrid Retriever：IMPLEMENTED / VERIFIED / FROZEN。
 Frozen Test Recall@5：75.0%。下一 Gate：Query Analysis。
+Standalone retrieval evaluation 已完成；后续 Query Analysis 属于 Retriever 上游。
 
 ## 环境要求
 

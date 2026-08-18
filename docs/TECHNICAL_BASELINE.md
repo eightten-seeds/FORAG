@@ -270,6 +270,8 @@ Dense
 → original_query
 ```
 
+上述 Query Analysis 输出必须映射到 Frozen Hybrid Retriever 的现有接口：`lexical_terms_en` → `bm25_query_text`，`structured_query.brand` → `brand`，`structured_query.technology` → `technologies`。`structured_query` 不整体传入 Retriever；`garment_type`、`issue_type`、`intent`、`care_stage` 保留在 Agent / Query Analysis state。
+
 这样少一次 LLM API 调用。
 
 ------

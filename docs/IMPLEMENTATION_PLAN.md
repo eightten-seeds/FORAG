@@ -868,26 +868,31 @@ retrieval/hybrid.py
 统一接口：
 
 ```python
-retrieve(
-    active_query,
-    lexical_terms_en,
-    structured_query
+HybridRetriever.retrieve(
+    original_query,
+    bm25_query_text=None,
+    brand=None,
+    technologies=()
 )
 ```
 
-首次检索时：
+Stage 5C standalone evaluation 使用：
 
 ```text
-active_query = original_query
+original question → Dense Retrieval → Cross-Encoder
+original question → BM25（bm25_query_text=None）
 ```
 
-唯一一次 Rewrite 后：
+后续 Query Analysis 位于 Retriever 上游，并将结果映射到已有接口：
 
 ```text
-active_query = reformulated_query
+original_query       → Dense Retrieval / Cross-Encoder
+lexical_terms_en     → bm25_query_text
+structured_query.brand      → brand
+structured_query.technology → technologies
 ```
 
-BM25 使用 `lexical_terms_en`、明确实体和 active query；Dense 使用 active query。
+`structured_query` 不直接整体传入 Retriever。`garment_type`、`issue_type`、`intent`、`care_stage` 等当前不支持的字段保留在 Agent / Query Analysis state。Query Analysis adapts to the Frozen Retriever；Frozen Retriever 不为 Query Analysis 修改内部参数或实现。
 
 内部：
 
