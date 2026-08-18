@@ -705,14 +705,28 @@ Retrieval Layer 对 LangGraph 提供统一能力。
 例如：
 
 ```python
-hybrid_retrieve(
-    active_query,
-    lexical_terms_en,
-    structured_query
+HybridRetriever.retrieve(
+    original_query,
+    bm25_query_text=None,
+    brand=None,
+    technologies=(),
 )
 ```
 
-首次检索时 `active_query = original_query`；唯一一次 Rewrite 后，`active_query = reformulated_query`。BM25 使用 `lexical_terms_en`、明确实体和 active query，Dense 使用 active query。
+首次检索由 Query Analysis upstream adapter 将 `lexical_terms_en` 清洗并以单个空格连接为 `bm25_query_text`；`structured_query.brand` 映射为 `brand`，`structured_query.technology` 映射为 `technologies`。语义检索与 Cross-Encoder 使用 `original_query`。`structured_query` 不整体传入 Retriever；`garment_type`、`issue_type`、`intent`、`care_stage` 保留在 Agent State。
+
+唯一一次 Rewrite 后，Agent State 的 `original_query` 仍表示用户最初输入；`reformulated_query` 是当前检索语义。第二次调用等价于：
+
+```python
+HybridRetriever.retrieve(
+    original_query=reformulated_query,
+    bm25_query_text=reformulated_query,
+    brand=stored_brand,
+    technologies=stored_technologies,
+)
+```
+
+Rewrite 后不得再次运行 Query Analysis，必须复用首次分析得到的 `brand` 与 `technologies`。最多一次 Rewrite；第二次 Evidence 判断后无论充分与否均不再 Rewrite。Stage 9 负责该 State、节点与条件路由；Stage 10 才负责 Answer/Citation Generation。
 
 内部执行：
 

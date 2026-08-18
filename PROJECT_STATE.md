@@ -18,7 +18,15 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 8B — Query Analysis → Frozen Hybrid Retriever DEV-only integrated retrieval evaluation.
+Stage 9A — Shared LLM Foundation + Agent Contract Freeze = DONE / PASS.
+
+- Shared LLM transport: IMPLEMENTED / VERIFIED
+- QueryAnalyzer shared transport migration: VERIFIED
+- Real API regression smoke: 1 synthetic query PASS; not a Golden Dataset evaluation
+- Frozen Retriever: UNCHANGED / FROZEN
+- Golden Dataset / KB: UNCHANGED / FROZEN
+
+Stage 5C standalone Frozen Hybrid Retriever formal TEST: 12/16, Success@5 75.0%, Recall@5 75.0%.
 
 Stage 8A — Query Analysis Foundation = DONE / PASS.
 
@@ -57,7 +65,8 @@ Stage 8B — Query Analysis → Frozen Hybrid Retriever = DONE / PASS.
 | Stage 7 RRF + Cross-Encoder | INCLUDED IN STAGE 5B / PASS |
 | Stage 8A Query Analysis Foundation | DONE / PASS |
 | Stage 8B Integrated DEV Retrieval | DONE / PASS |
-| Stage 9 LangGraph | NOT STARTED |
+| Stage 9A Shared LLM Foundation + Agent Contract Freeze | DONE / PASS |
+| Stage 9B Agent Workflow Implementation | NOT STARTED |
 | Stage 10+ | NOT STARTED |
 
 ## Frozen Components
@@ -105,19 +114,19 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 8B integrated DEV-only retrieval evaluation completed: standalone 12/24 (50.0% Success@5, 50.0% Recall@5); integrated 15/24 (62.5% Success@5, 62.5% Recall@5); delta +3 hits / +12.5 percentage points. GAINED 3, LOST 0, UNCHANGED_HIT 12, UNCHANGED_MISS 9. TEST NOT RUN; no test-driven tuning; no prompt tuning after integrated baseline.
+Stage 9A finalized: shared Qwen/OpenAI-compatible transport, QueryAnalyzer migration, Agent State, original_query invariant, first/rewrite retrieval contracts, and Stage 9/10 boundary are verified. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B remains DEV-only: integrated 15/24 = 62.5%; integrated TEST NOT RUN.
 
 ## Current Blockers
 
-None。Stage 5A、5B、5C、8A、8B 均已通过规定范围验收。
+None.
 
 ## Next Gate
 
-Stage 9 — LangGraph workflow and downstream agent orchestration.
+Stage 9B — Agent workflow implementation from the frozen Stage 9A contracts.
 
 ## Next Stage
 
-Stage 9 — LangGraph workflow and downstream agent orchestration.
+Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing.
 
 ## Retrieval / Agent Status
 
@@ -128,7 +137,7 @@ Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
 LangGraph、Evidence Judge、Query Rewrite、Answer Generation、FastAPI QA 和 Vue QA 尚未实现。
 
-在第二个 LLM consumer（例如 Evidence Judge）正式实现前，应将通用 Qwen/OpenAI-compatible provider transport 抽成 shared LLM client；Query Analysis 保留 prompt/schema/business logic。当前不执行该重构。
+Stage 9A shared transport and Agent contracts are DONE / PASS. Full LangGraph execution, Evidence Judge business logic, Query Rewrite business logic, Answer Generation, FastAPI QA and Vue QA remain unimplemented.
 
 ## Git Checkpoints
 

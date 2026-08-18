@@ -119,12 +119,12 @@ def test_unsupported_fields_never_cross_the_frozen_retriever_adapter() -> None:
     assert "care_stage" not in inputs.model_dump()
 
 
-class FakeStructuredOutputClient:
+class FakeStructuredOutputTransport:
     def __init__(self, content: str | Exception) -> None:
         self.content = content
         self.calls: list[dict[str, object]] = []
 
-    def complete(self, **kwargs: object) -> str:
+    def complete_structured(self, **kwargs: object) -> str:
         self.calls.append(kwargs)
         if isinstance(self.content, Exception):
             raise self.content
@@ -147,12 +147,13 @@ def provider_payload() -> str:
 
 
 def test_analyzer_validates_mocked_api_response_and_keeps_original_query() -> None:
-    client = FakeStructuredOutputClient(provider_payload())
+    client = FakeStructuredOutputTransport(provider_payload())
     analyzer = QueryAnalyzer(client=client, model="qwen3.7-plus")
+    question = "我的 GORE-TEX 冲锋衣不挂水珠了怎么办？"
 
-    result = analyzer.analyze("我的 GORE-TEX 冲锋衣不挂水珠了怎么办？")
+    result = analyzer.analyze(question)
 
-    assert result.original_query == "我的 GORE-TEX 冲锋衣不挂水珠了怎么办？"
+    assert result.original_query == question
     assert result.lexical_terms_en == ["GORE-TEX", "DWR", "water repellency"]
     response_format = client.calls[0]["response_format"]
     assert response_format["type"] == "json_schema"
@@ -160,17 +161,22 @@ def test_analyzer_validates_mocked_api_response_and_keeps_original_query() -> No
     assert response_format["json_schema"]["schema"]["additionalProperties"] is False
     assert client.calls[0]["temperature"] == 0.0
     assert client.calls[0]["enable_thinking"] is False
-    assert "Return JSON only" in str(client.calls[0]["system_prompt"])
+    assert client.calls[0]["model"] == "qwen3.7-plus"
+    assert client.calls[0]["messages"] == [
+        {"role": "system", "content": client.calls[0]["messages"][0]["content"]},
+        {"role": "user", "content": question},
+    ]
+    assert "Return JSON only" in client.calls[0]["messages"][0]["content"]
     assert QUERY_ANALYSIS_PROMPT_VERSION == "stage8a-v1"
 
 
 def test_analyzer_surfaces_malformed_or_invalid_provider_output() -> None:
-    analyzer = QueryAnalyzer(FakeStructuredOutputClient("not-json"), model="qwen3.7-plus")
+    analyzer = QueryAnalyzer(FakeStructuredOutputTransport("not-json"), model="qwen3.7-plus")
 
     with pytest.raises(QueryAnalysisValidationError, match="schema validation"):
         analyzer.analyze("怎么护理？")
 
-    failing = QueryAnalyzer(FakeStructuredOutputClient(RuntimeError("network down")), model="qwen3.7-plus")
+    failing = QueryAnalyzer(FakeStructuredOutputTransport(RuntimeError("network down")), model="qwen3.7-plus")
     with pytest.raises(QueryAnalysisProviderError, match="request failed"):
         failing.analyze("怎么护理？")
 

@@ -920,6 +920,12 @@ HybridRetriever.retrieve(
 
 `structured_query` 不直接整体传入 Retriever。`garment_type`、`issue_type`、`intent`、`care_stage` 等当前不支持的字段保留在 Agent / Query Analysis state。Query Analysis adapts to the Frozen Retriever；Frozen Retriever 不为 Query Analysis 修改内部参数或实现。
 
+### Stage 9A orchestration contract freeze
+
+`original_query` is immutable Agent State: it always means the user's first input. The first retrieval calls `HybridRetriever.retrieve(original_query=original_query, bm25_query_text=bm25_query_text, brand=brand, technologies=technologies)`. Query Analysis runs once only.
+
+If a future Evidence Judge marks the first evidence insufficient, the sole permitted rewrite stores `reformulated_query` without replacing `original_query`. The second retrieval calls `HybridRetriever.retrieve(original_query=reformulated_query, bm25_query_text=reformulated_query, brand=stored_brand, technologies=stored_technologies)`. It reuses the initial metadata and never re-runs Query Analysis. `rewrite_count` starts at zero and may become one; after the second evidence decision the workflow routes to generation readiness or insufficient-evidence handling without another rewrite. Stage 9 owns the workflow boundary; Stage 10 owns answer and citation generation.
+
 内部：
 
 ```text

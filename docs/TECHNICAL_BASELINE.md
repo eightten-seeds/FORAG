@@ -285,6 +285,8 @@ bm25_query_text = " ".join(terms) if terms else None
 
 因此，`["GORE-TEX", "DWR", "water repellency"]` 转换为 `"GORE-TEX DWR water repellency"`；清洗后为空时传入 `None`，由 Frozen Retriever fallback 到 `original_query`。`structured_query` 不整体传入 Retriever；`garment_type`、`issue_type`、`intent`、`care_stage` 保留在 Agent / Query Analysis state。
 
+Stage 9A freezes the orchestration distinction between immutable Agent `original_query` and the Retriever's current semantic query. First retrieval uses `original_query` for Dense/Cross-Encoder and the adapter's `bm25_query_text` for BM25. If exactly one future rewrite is needed, `reformulated_query` is used for both Retriever query parameters while the first-pass `brand` and `technologies` are preserved. Query Analysis does not run again after rewrite; `rewrite_count` is capped at one. These contracts do not modify the Frozen Retriever interface or parameters; Stage 9 owns routing and Stage 10 owns answer/citation generation.
+
 这样少一次 LLM API 调用。
 
 ------
