@@ -971,20 +971,12 @@ qwen_generate()
 ```text
 backend/app/llm/
 ├── client.py
-├── schemas.py
-└── prompts.py
+└── errors.py
 ```
 
-统一：
+`backend/app/llm/` is shared provider transport only: provider config, OpenAI-compatible request transport, timeout/retry, structured-output transport, `enable_thinking`, and provider error normalization. It does not own prompts, schemas, local validation, or business methods such as query analysis, evidence grading, rewrite, or answer generation.
 
-```text
-LLMClient
-
-analyze_query()
-grade_evidence()
-rewrite_query()
-generate_answer()
-```
+Query Analysis keeps its prompt/schema/local validation/business semantics in `backend/app/query_analysis/`. Future Evidence Judge, Query Rewriter, and Answer Generator own their respective prompt/schema/business semantics outside `backend/app/llm/`.
 
 当前底层：
 

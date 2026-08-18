@@ -11,6 +11,7 @@ from backend.app.retrieval.models import RetrievalCandidate
 
 
 EvidenceGrade = Literal["unassessed", "sufficient", "insufficient"]
+InsufficientReason = Literal["retrieval_problem", "missing_information"]
 AgentRoute = Literal["retrieve", "rewrite", "ready_for_generation", "insufficient_evidence"]
 
 
@@ -25,6 +26,7 @@ class AgentState(TypedDict):
     current_retrieval_query: str
     retrieval_evidence: tuple[RetrievalCandidate, ...]
     evidence_grade: EvidenceGrade
+    insufficient_reason: InsufficientReason | None
     rewrite_count: int
     reformulated_query: str | None
     route: AgentRoute
@@ -54,6 +56,7 @@ def initialize_agent_state(original_query: str) -> AgentState:
         "current_retrieval_query": original_query,
         "retrieval_evidence": (),
         "evidence_grade": "unassessed",
+        "insufficient_reason": None,
         "rewrite_count": 0,
         "reformulated_query": None,
         "route": "retrieve",
@@ -101,16 +104,37 @@ def record_retrieval_evidence(
     return cast(AgentState, updated)
 
 
-def record_evidence_grade(state: AgentState, *, sufficient: bool) -> AgentState:
+def record_evidence_grade(
+    state: AgentState,
+    *,
+    sufficient: bool,
+    insufficient_reason: InsufficientReason | None = None,
+) -> AgentState:
     """Apply a future Evidence Judge result to the routing contract."""
 
     updated = dict(state)
     if sufficient:
-        updated.update(evidence_grade="sufficient", route="ready_for_generation")
-    elif state["rewrite_count"] == 0:
-        updated.update(evidence_grade="insufficient", route="rewrite")
+        if insufficient_reason is not None:
+            raise ValueError("Sufficient evidence must not include an insufficient_reason.")
+        updated.update(
+            evidence_grade="sufficient",
+            insufficient_reason=None,
+            route="ready_for_generation",
+        )
+    elif insufficient_reason not in {"retrieval_problem", "missing_information"}:
+        raise ValueError("Insufficient evidence requires a valid insufficient_reason.")
+    elif insufficient_reason == "retrieval_problem" and state["rewrite_count"] == 0:
+        updated.update(
+            evidence_grade="insufficient",
+            insufficient_reason=insufficient_reason,
+            route="rewrite",
+        )
     else:
-        updated.update(evidence_grade="insufficient", route="insufficient_evidence")
+        updated.update(
+            evidence_grade="insufficient",
+            insufficient_reason=insufficient_reason,
+            route="insufficient_evidence",
+        )
     return cast(AgentState, updated)
 
 
@@ -119,6 +143,8 @@ def apply_reformulated_query(state: AgentState, reformulated_query: str) -> Agen
 
     if state["rewrite_count"] != 0:
         raise ValueError("The Stage 9 contract permits at most one Query Rewrite.")
+    if state["route"] != "rewrite" or state["insufficient_reason"] != "retrieval_problem":
+        raise ValueError("Query Rewrite requires a first-pass retrieval_problem route.")
     if not isinstance(reformulated_query, str) or not reformulated_query.strip():
         raise ValueError("Query Rewrite requires a non-empty reformulated_query.")
     updated = dict(state)

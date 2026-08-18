@@ -978,15 +978,12 @@ wetting-out
 ```text
 backend/app/llm/
 ├── client.py
-├── schemas.py
-└── prompts.py
+└── errors.py
 ```
 
-统一：
+`backend/app/llm/` is the shared Qwen/OpenAI-compatible provider transport only. It owns provider configuration, transport, timeout/retry, structured-output transport, `enable_thinking`, and provider-error normalization. It must not expose business methods such as `analyze_query()`, `grade_evidence()`, `rewrite_query()`, or `generate_answer()`.
 
-```text
-LLMClient
-```
+Each business module owns its own prompt, schema, local validation, and business semantics: Query Analysis remains in `backend/app/query_analysis/`; future Evidence Judge, Query Rewriter, and Answer Generator remain separate consumers of the shared transport.
 
 第一版模型：
 
