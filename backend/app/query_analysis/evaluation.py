@@ -40,16 +40,32 @@ class IntegratedQueryArtifact:
 
 
 @dataclass(frozen=True)
+class CategoryRecallAt5:
+    """Stage 13 category aggregation over frozen per-query retrieval metrics."""
+
+    category: str
+    evaluable_samples: int
+    recall_at_5: float
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class IntegratedEvaluationResult:
     """Frozen retrieval metrics plus the upstream artifacts that produced them."""
 
     evaluation: EvaluationResult
     query_artifacts: list[IntegratedQueryArtifact]
+    category_recall_at_5: list[CategoryRecallAt5]
 
     def as_dict(self) -> dict[str, object]:
         return {
             "result": self.evaluation.as_dict(),
             "query_artifacts": [artifact.as_dict() for artifact in self.query_artifacts],
+            "category_recall_at_5": [
+                category.as_dict() for category in self.category_recall_at_5
+            ],
         }
 
 
@@ -101,7 +117,27 @@ def evaluate_integrated_dev(
 
     integrated = QueryAnalysisIntegratedRetriever(analyzer, retriever)
     evaluation = evaluate_retriever(records, integrated, split="dev")
+    categories_by_line = {
+        line_number: record["category"]
+        for line_number, record in enumerate(records, start=1)
+        if record.get("split") == "dev"
+        and record.get("category") not in {"insufficient_evidence", "missing_information"}
+    }
+    recalls_by_category: dict[str, list[float]] = {}
+    for sample in evaluation.samples:
+        category = categories_by_line[sample.line_number]
+        recalls_by_category.setdefault(category, []).append(sample.recall_at_5)
+
+    category_recall_at_5 = [
+        CategoryRecallAt5(
+            category=category,
+            evaluable_samples=len(recalls),
+            recall_at_5=sum(recalls) / len(recalls),
+        )
+        for category, recalls in sorted(recalls_by_category.items())
+    ]
     return IntegratedEvaluationResult(
         evaluation=evaluation,
         query_artifacts=integrated.query_artifacts,
+        category_recall_at_5=category_recall_at_5,
     )

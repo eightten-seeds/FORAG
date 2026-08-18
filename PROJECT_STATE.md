@@ -18,7 +18,7 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 11 — End-to-End Integration = DONE / PASS.
+Stage 13 — Integrated DEV Evaluation = DONE / PASS.
 
 Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS.
 
@@ -28,6 +28,14 @@ Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS.
 - No current Stage 11A blocker
 - Stage 11B — Vue + Browser End-to-End: DONE / PASS
 - Real Browser E2E: PASS; synthetic answered flow rendered answer, sources, evidence, trace, and browser request timing
+
+Stage 13 — Integrated DEV Evaluation = DONE / PASS.
+
+- Stage 11 overall remains DONE / PASS
+- DEV records: 26 total; 24 retrieval-evaluable; 2 non-retrieval exclusions
+- Success@5: 15/24 = 62.5%; Recall@5: 62.5%
+- Category Recall@5: down_drying 80.0%, down_washing 0.0%, dwr 83.3%, fleece 100.0%, hardshell_drying 100.0%, hardshell_washing 50.0%, softshell 100.0%, stain_removal 100.0%, washing 0.0%
+- Stage 8B integrated DEV baseline reproduced; Final TEST and RAGChecker NOT RUN
 
 - Shared LLM transport: IMPLEMENTED / VERIFIED
 - QueryAnalyzer shared transport migration: VERIFIED
@@ -86,6 +94,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 11 End-to-End Integration | DONE / PASS |
 | Stage 11A Backend Runtime + RAGService + FastAPI | DONE / PASS |
 | Stage 11B Vue + Browser End-to-End | DONE / PASS |
+| Stage 13 Integrated DEV Evaluation | DONE / PASS |
 
 ## Frozen Components
 
@@ -132,7 +141,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 11 — End-to-End Integration = DONE / PASS. Stage 11A Backend Runtime + RAGService + FastAPI and Stage 11B Vue + Browser End-to-End are DONE / PASS. Real Browser E2E completed an answered synthetic flow with answer, sources, evidence, trace, and browser request timing; final full-system evaluation has not run. Stage 10 remains DONE / PASS. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
+Stage 13 — Integrated DEV Evaluation = DONE / PASS. The frozen system reproduced the Stage 8B integrated DEV baseline: 26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, and Recall@5 62.5%. Stage 5C standalone formal TEST remains 12/16 = 75.0%; Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN. Stage 13 Final TEST and RAGChecker remain NOT RUN.
 
 ## Current Blockers
 
@@ -140,11 +149,11 @@ None.
 
 ## Next Gate
 
-Stage 13 — Integrated / Final Evaluation.
+Stage 14 — Final TEST + RAGChecker.
 
 ## Next Stage
 
-Stage 13 — Integrated / Final Evaluation.
+Stage 14 — Final TEST + RAGChecker.
 
 ## Retrieval / Agent Status
 
@@ -155,10 +164,11 @@ Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
 LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；final full-system evaluation 尚未实现。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, and Stage 11A/11B end-to-end web integration are IMPLEMENTED / VERIFIED. Final full-system evaluation remains unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, Stage 11A/11B end-to-end web integration, and Stage 13 integrated DEV evaluation are IMPLEMENTED / VERIFIED. Final TEST and RAGChecker remain unimplemented.
 
 ## Git Checkpoints
 
+- `e25f6ea feat: complete vue browser integration` (Stage 11B Vue + Browser End-to-End)
 - `227e543 feat: integrate rag backend api`（Stage 11A Backend Runtime + RAGService + FastAPI）
 - `584a7d7 feat: implement grounded answer and citation generation`（Stage 10 Answer Generation + Citation Generation）
 - `5855999 feat: implement evidence rewrite agent routing`（Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing）
