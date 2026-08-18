@@ -728,6 +728,8 @@ HybridRetriever.retrieve(
 
 Rewrite 后不得再次运行 Query Analysis，必须复用首次分析得到的 `brand` 与 `technologies`。最多一次 Rewrite；第二次 Evidence 判断后无论充分与否均不再 Rewrite。Stage 9 负责该 State、节点与条件路由；Stage 10 才负责 Answer/Citation Generation。
 
+Stage 10 extends only the downstream terminal paths: `ready_for_generation` runs grounded Answer Generation and deterministic citation validation; `insufficient_evidence` creates a deterministic terminal response. Evidence Judge receives only `original_query + current Top-K Evidence`; it does not receive the whole structured query. Citation source metadata is mapped directly from the current `RetrievalCandidate` snapshot, never by a second Elasticsearch lookup.
+
 内部执行：
 
 ```text
@@ -1078,8 +1080,6 @@ Generation 输入：
 
 ```text
 Original Query
-+
-Structured Query
 +
 Top-K Evidence
 ```

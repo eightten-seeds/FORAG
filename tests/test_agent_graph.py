@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from backend.app.agent.answer_models import AnswerDraft
 from backend.app.agent.evidence_models import EvidenceDecision
 from backend.app.agent.graph import build_agent_graph
 from backend.app.agent.rewrite_models import RewriteResult
@@ -74,6 +75,15 @@ class FakeRewriter:
         return RewriteResult(reformulated_query=self.reformulated_query)
 
 
+class FakeAnswerGenerator:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    def generate(self, original_query: str, evidence: tuple[RetrievalCandidate, ...]) -> AnswerDraft:
+        self.calls.append({"original_query": original_query, "evidence": evidence})
+        return AnswerDraft(answer="Grounded care guidance. [E1]", cited_evidence_ids=["E1"])
+
+
 def decision(sufficient: bool, reason: str | None = None) -> EvidenceDecision:
     return EvidenceDecision(evidence_sufficient=sufficient, insufficient_reason=reason)
 
@@ -83,29 +93,33 @@ def invoke(decisions: list[EvidenceDecision]):
     retriever = FakeRetriever()
     judge = FakeJudge(decisions)
     rewriter = FakeRewriter()
+    answer_generator = FakeAnswerGenerator()
     graph = build_agent_graph(
         analyzer=analyzer,
         retriever=retriever,
         evidence_judge=judge,
         query_rewriter=rewriter,
+        answer_generator=answer_generator,
     )
     original = "My jacket no longer beads water."
     result = graph.invoke(initialize_agent_state(original))
-    return result, analyzer, retriever, judge, rewriter, original
+    return result, analyzer, retriever, judge, rewriter, answer_generator, original
 
 
 def test_graph_sufficient_first_pass_reaches_generation_boundary() -> None:
-    result, analyzer, retriever, judge, rewriter, original = invoke([decision(True)])
+    result, analyzer, retriever, judge, rewriter, answer_generator, original = invoke([decision(True)])
 
     assert result["route"] == "ready_for_generation"
     assert analyzer.calls == [original]
     assert len(retriever.calls) == 1
     assert len(judge.calls) == 1
     assert rewriter.calls == []
+    assert len(answer_generator.calls) == 1
+    assert result["final_response"].status == "answered"
 
 
 def test_graph_missing_information_never_calls_rewriter() -> None:
-    result, analyzer, retriever, judge, rewriter, original = invoke(
+    result, analyzer, retriever, judge, rewriter, answer_generator, original = invoke(
         [decision(False, "missing_information")]
     )
 
@@ -114,10 +128,13 @@ def test_graph_missing_information_never_calls_rewriter() -> None:
     assert len(retriever.calls) == 1
     assert len(judge.calls) == 1
     assert rewriter.calls == []
+    assert answer_generator.calls == []
+    assert result["final_response"].status == "needs_more_information"
+    assert result["final_response"].sources == []
 
 
 def test_graph_rewrites_once_then_retrieves_with_frozen_second_pass_contract() -> None:
-    result, analyzer, retriever, judge, rewriter, original = invoke(
+    result, analyzer, retriever, judge, rewriter, answer_generator, original = invoke(
         [decision(False, "retrieval_problem"), decision(True)]
     )
 
@@ -140,10 +157,12 @@ def test_graph_rewrites_once_then_retrieves_with_frozen_second_pass_contract() -
     }
     assert result["original_query"] == original
     assert result["reformulated_query"] == "DWR reactivation waterproof jacket"
+    assert len(answer_generator.calls) == 1
+    assert result["final_response"].status == "answered"
 
 
 def test_graph_second_retrieval_problem_stops_without_second_rewrite() -> None:
-    result, analyzer, retriever, judge, rewriter, original = invoke(
+    result, analyzer, retriever, judge, rewriter, answer_generator, original = invoke(
         [decision(False, "retrieval_problem"), decision(False, "retrieval_problem")]
     )
 
@@ -152,10 +171,12 @@ def test_graph_second_retrieval_problem_stops_without_second_rewrite() -> None:
     assert len(retriever.calls) == 2
     assert len(judge.calls) == 2
     assert len(rewriter.calls) == 1
+    assert answer_generator.calls == []
+    assert result["final_response"].status == "insufficient_evidence"
 
 
 def test_graph_second_missing_information_stops_and_does_not_use_stale_reason() -> None:
-    result, analyzer, retriever, judge, rewriter, original = invoke(
+    result, analyzer, retriever, judge, rewriter, answer_generator, original = invoke(
         [decision(False, "retrieval_problem"), decision(False, "missing_information")]
     )
 
@@ -165,3 +186,5 @@ def test_graph_second_missing_information_stops_and_does_not_use_stale_reason() 
     assert len(retriever.calls) == 2
     assert len(judge.calls) == 2
     assert len(rewriter.calls) == 1
+    assert answer_generator.calls == []
+    assert result["final_response"].status == "needs_more_information"

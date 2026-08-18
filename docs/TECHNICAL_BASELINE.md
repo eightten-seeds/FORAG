@@ -287,6 +287,8 @@ bm25_query_text = " ".join(terms) if terms else None
 
 Stage 9A freezes the orchestration distinction between immutable Agent `original_query` and the Retriever's current semantic query. First retrieval uses `original_query` for Dense/Cross-Encoder and the adapter's `bm25_query_text` for BM25. If exactly one future rewrite is needed, `reformulated_query` is used for both Retriever query parameters while the first-pass `brand` and `technologies` are preserved. Query Analysis does not run again after rewrite; `rewrite_count` is capped at one. These contracts do not modify the Frozen Retriever interface or parameters; Stage 9 owns routing and Stage 10 owns answer/citation generation.
 
+Stage 10 assigns E1..En in current RetrievalCandidate order. Answer Generation uses strict JSON Schema and may return only a grounded answer plus cited evidence IDs. Citation validation is deterministic: inline IDs and structured IDs must match and must exist in the current evidence snapshot. FinalResponse provenance comes directly from RetrievalCandidate (`chunk_id`, `source_title`, `section_title`, `source_url`); Stage 10 performs no Elasticsearch citation re-query. Evidence Judge input is `original_query + current evidence`, not the full structured query.
+
 这样少一次 LLM API 调用。
 
 ------
@@ -823,8 +825,6 @@ Lexical Terms生成
 ```text
 Original Query
 +
-Structured Query
-+
 Top-5 Evidence
 ```
 
@@ -1039,12 +1039,9 @@ content=...
 ```text
 E1
 ↓
-chunk_id
+current RetrievalCandidate provenance snapshot
 ↓
-Elasticsearch Metadata
-↓
-source_title
-source_url
+chunk_id + source_title + section_title + source_url
 ```
 
 最终 API：

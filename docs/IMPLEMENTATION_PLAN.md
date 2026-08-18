@@ -926,6 +926,8 @@ HybridRetriever.retrieve(
 
 If a future Evidence Judge marks the first evidence insufficient, the sole permitted rewrite stores `reformulated_query` without replacing `original_query`. The second retrieval calls `HybridRetriever.retrieve(original_query=reformulated_query, bm25_query_text=reformulated_query, brand=stored_brand, technologies=stored_technologies)`. It reuses the initial metadata and never re-runs Query Analysis. `rewrite_count` starts at zero and may become one; after the second evidence decision the workflow routes to generation readiness or insufficient-evidence handling without another rewrite. Stage 9 owns the workflow boundary; Stage 10 owns answer and citation generation.
 
+Stage 10 assigns E1..En deterministically from the current RetrievalCandidate order. The Answer Generator returns only `answer` and `cited_evidence_ids` through strict JSON Schema; Citation Validator rejects unknown, missing, or mismatched inline IDs. FinalResponse source fields are mapped from that same candidate snapshot with no Elasticsearch citation lookup. `missing_information` produces `needs_more_information`; post-rewrite `retrieval_problem` produces `insufficient_evidence`.
+
 内部：
 
 ```text

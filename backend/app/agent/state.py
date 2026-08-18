@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Required, TypedDict, cast
 
+from backend.app.agent.answer_models import FinalResponse
 from backend.app.query_analysis.adapter import to_frozen_retriever_inputs
 from backend.app.query_analysis.models import QueryAnalysisResult
 from backend.app.retrieval.models import RetrievalCandidate
@@ -30,6 +31,7 @@ class AgentState(TypedDict):
     rewrite_count: int
     reformulated_query: str | None
     route: AgentRoute
+    final_response: FinalResponse | None
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,7 @@ def initialize_agent_state(original_query: str) -> AgentState:
         "rewrite_count": 0,
         "reformulated_query": None,
         "route": "retrieve",
+        "final_response": None,
     }
 
 

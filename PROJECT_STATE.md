@@ -18,7 +18,7 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 9A — Shared LLM Foundation + Agent Contract Freeze = DONE / PASS.
+Stage 10 — Answer Generation + Citation Generation = DONE / PASS.
 
 - Shared LLM transport: IMPLEMENTED / VERIFIED
 - QueryAnalyzer shared transport migration: VERIFIED
@@ -53,7 +53,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 
 - Query Analysis, Frozen Hybrid Retriever, shared LLM transport, Agent State contract, Evidence Judge, Query Rewrite, and LangGraph routing: IMPLEMENTED / VERIFIED
 - Max-one-rewrite retrieval loop: IMPLEMENTED / VERIFIED
-- Answer Generation, Citation Generation, FastAPI QA integration, Vue QA integration, and final full-system evaluation: NOT IMPLEMENTED
+- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration, Vue QA integration, and final full-system evaluation: NOT IMPLEMENTED
 
 ## Stage Status
 
@@ -73,7 +73,8 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 8B Integrated DEV Retrieval | DONE / PASS |
 | Stage 9A Shared LLM Foundation + Agent Contract Freeze | DONE / PASS |
 | Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing | DONE / PASS |
-| Stage 10+ | NOT STARTED |
+| Stage 10 Answer Generation + Citation Generation | DONE / PASS |
+| Stage 11 FastAPI + Vue End-to-End Integration | NOT STARTED |
 
 ## Frozen Components
 
@@ -120,7 +121,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS. Evidence routing: sufficient → ready_for_generation; missing_information → insufficient_evidence; retrieval_problem first pass → rewrite; second insufficient → insufficient_evidence. MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN; no Answer Generation. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
+Stage 10 — Answer Generation + Citation Generation = DONE / PASS. FinalResponse, grounded Answer Generator, deterministic citation validation/source mapping, terminal responses, and final-response graph integration are implemented and verified. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
 
 ## Current Blockers
 
@@ -128,11 +129,11 @@ None.
 
 ## Next Gate
 
-Stage 10 — Answer Generation + Citation Generation.
+Stage 11 — FastAPI + Vue End-to-End Integration.
 
 ## Next Stage
 
-Stage 10 — Answer Generation + Citation Generation.
+Stage 11 — FastAPI + Vue End-to-End Integration.
 
 ## Retrieval / Agent Status
 
@@ -141,9 +142,9 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite：IMPLEMENTED / VERIFIED；Answer Generation、Citation Generation、FastAPI QA 和 Vue QA 尚未实现。
+LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation：IMPLEMENTED / VERIFIED；FastAPI QA 和 Vue QA 尚未实现。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B LangGraph execution, Evidence Judge business logic, and Query Rewrite business logic are IMPLEMENTED / VERIFIED; Stage 9B has no Answer Generation. FastAPI QA and Vue QA remain unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing and Stage 10 final-response generation are IMPLEMENTED / VERIFIED. FastAPI QA and Vue QA remain unimplemented.
 
 ## Git Checkpoints
 
