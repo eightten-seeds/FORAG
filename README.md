@@ -8,8 +8,10 @@ Golden Dataset v1：42 samples，dev/test = 26/16，Human Review complete，已�
 
 已实现：BM25、Dense → RRF → Cross-Encoder → Top5 的 Hybrid Retriever；Stage 5C 已 DONE / PASS。
 Hybrid Retriever：IMPLEMENTED / VERIFIED / FROZEN。
-Frozen Test Recall@5：75.0%。下一 Gate：Query Analysis。
-Standalone retrieval evaluation 已完成；后续 Query Analysis 属于 Retriever 上游。
+Query Analysis/Qwen：IMPLEMENTED / REAL API VERIFIED；Stage 8A = DONE。
+Stage 8B DEV integration：VERIFIED；standalone Success@5 50.0%，integrated Success@5 62.5%，提升 +3 hits / +12.5 pp。
+TEST NOT RUN。Next Gate：Stage 9。
+LangGraph、Evidence Judge、Answer Generation 和 Web QA：NOT IMPLEMENTED。
 
 ## 环境要求
 
@@ -54,5 +56,7 @@ certificate, and password configuration unchanged.
 Implemented pipeline stages include controlled official-source collection,
 Loader/Cleaner, structure-aware Chunking, deterministic Metadata and
 Terminology, multilingual E5 embeddings, the Elasticsearch knowledge base,
-and the frozen Stage 5A/5B retrieval pipeline. Stage 5C evaluation/freeze is
-complete; Query Analysis, Qwen/LangGraph, and Web QA remain out of scope.
+and the frozen Stage 5A/5B retrieval pipeline. Stage 5C evaluation/freeze and
+Stage 8A Query Analysis/Qwen and Stage 8B DEV integration are complete; TEST
+was not run. LangGraph, Evidence Judge, Answer Generation, and Web QA remain
+out of scope.
