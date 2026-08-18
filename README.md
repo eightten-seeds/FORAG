@@ -11,8 +11,26 @@ Hybrid Retriever：IMPLEMENTED / VERIFIED / FROZEN。
 Stage 5C standalone Retriever formal TEST：12/16 = 75.0%。
 Query Analysis/Qwen：IMPLEMENTED / REAL API VERIFIED；Stage 8A = DONE。
 Stage 8B DEV integration：VERIFIED；standalone Success@5 50.0%，integrated Success@5 62.5%，提升 +3 hits / +12.5 pp。
-Stage 8B integrated TEST NOT RUN。Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Stage 9B：Evidence Judge + Query Rewrite + LangGraph routing = DONE / PASS。Stage 10：Answer Generation + Citation Generation = DONE / PASS。Stage 11A：Backend FastAPI integration = IMPLEMENTED / PASS。Stage 11B：Vue + Browser End-to-End = IMPLEMENTED / PASS。Real Backend HTTP E2E 与 Browser E2E 均为 PASS。Stage 11 overall = DONE / PASS。Stage 13 Integrated DEV Evaluation = DONE / PASS：26 DEV records / 24 retrieval-evaluable，Success@5 = 15/24 = 62.5%，Recall@5 = 62.5%。Next Gate：Stage 14 — Final TEST + RAGChecker。
-Answer Generation、Citation Generation、Citation Validation、FastAPI backend integration、Vue QA integration：IMPLEMENTED；Final TEST 与 RAGChecker：NOT RUN。
+Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Stage 9B：Evidence Judge + Query Rewrite + LangGraph routing = DONE / PASS。Stage 10：Answer Generation + Citation Generation = DONE / PASS。Stage 11A：Backend FastAPI integration = IMPLEMENTED / PASS。Stage 11B：Vue + Browser End-to-End = IMPLEMENTED / PASS。Real Backend HTTP E2E 与 Browser E2E 均为 PASS。Stage 11 overall = DONE / PASS。Stage 13 Integrated DEV Evaluation = DONE / PASS：26 DEV records / 24 retrieval-evaluable，Success@5 = 15/24 = 62.5%，Recall@5 = 62.5%。
+Stage 14 Final TEST + RAGChecker = DONE / PASS（Official Attempt #2 完整执行）。Next Gate：Stage 15 — Full-chain Final Acceptance。
+
+## 最终系统评测结果 (Stage 14 Official TEST)
+
+- **评测数据集**：Golden TEST（16 samples，16 retrieval-evaluable，0 excluded）
+- **评测模型快照**：
+  - Generation Pipeline LLM: `qwen3.7-plus-2026-05-26`
+  - RAGChecker Extractor: `qwen3.7-plus-2026-05-26`
+  - RAGChecker Checker: `qwen3.7-plus-2026-05-26`
+  - Embedding: `intfloat/multilingual-e5-small`
+  - Reranker: `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`
+- **核心质量指标**：
+  - **Success@5 / Recall@5**: 14/16 = **87.5%**（14/16 TEST queries 的 Final Top-5 命中 Gold evidence；完整全链路相较 Stage 5C standalone baseline 12/16 = 75.0% 观察到 +12.5 percentage points 系统级差异）
+  - **Claim Recall**: **77.9%**（检索上下文覆盖了多数 ground-truth claims，仍存在 claim coverage gap）
+  - **Context Precision**: **41.2%**（当前 Top-5 中仍存在较多与目标 claim 无直接关系的上下文，context filtering / ranking precision 是当前系统主要限制之一）
+  - **Faithfulness**: **81.4%**（多数生成 claims 能由检索上下文支持，但仍存在一定 unsupported / weakly-supported claims）
+- **路由与重写分布**：
+  - FinalResponse status: `answered` = 13, `needs_more_information` = 2, `insufficient_evidence` = 1（系统在部分 answerable cases 上仍存在保守的 terminal routing 行为）
+  - Rewrite count: 0 rewrite = 14, 1 rewrite = 2；Retrieval passes: 1 pass = 14, 2 passes = 2；Final Top-5 misses = 2
 
 ## 环境要求
 
@@ -53,19 +71,3 @@ If Elasticsearch fails during startup because automatic heap sizing exceeds
 available memory, start the existing installation with a process-local heap
 setting such as `ES_JAVA_OPTS=-Xms1g -Xmx1g`. Keep the existing security,
 certificate, and password configuration unchanged.
-
-Implemented pipeline stages include controlled official-source collection,
-Loader/Cleaner, structure-aware Chunking, deterministic Metadata and
-Terminology, multilingual E5 embeddings, the Elasticsearch knowledge base,
-and the frozen Stage 5A/5B retrieval pipeline. Stage 5C formal standalone
-TEST is 12/16 = 75.0%; Stage 8A Query Analysis/Qwen and Stage 8B DEV
-integration are complete, while the integrated TEST was not run. Stage 9A
-shared LLM transport and Agent contract freeze are DONE / PASS; Stage 9B
-LangGraph execution, Evidence Judge, and Query Rewrite are DONE / PASS.
-Stage 10 Answer Generation and Citation Validation are DONE / PASS;
-Stage 11A Backend FastAPI integration is IMPLEMENTED / PASS; Stage 11B Vue
-and Browser End-to-End integration is IMPLEMENTED / PASS. Real Backend HTTP
-E2E and Browser E2E are PASS; the complete web RAG system is IMPLEMENTED.
-Stage 13 Integrated DEV Evaluation is DONE / PASS: 15/24 Success@5 and 62.5%
-Recall@5, reproducing the Stage 8B integrated DEV baseline. Final TEST and
-RAGChecker have not run; the next gate is Stage 14 Final TEST + RAGChecker.

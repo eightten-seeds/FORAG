@@ -18,6 +18,18 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
+Stage 14 — Final TEST + RAGChecker = DONE / PASS.
+
+- Official Attempt #1: commit `bdc256317f055d9b6385cb3973b3fda54c1ce264`, INTERRUPTED (citation consistency runtime validation exception; quality metrics: NONE)
+- Official Attempt #2: commit `52e9a1f676dca923a474124862978eac936d79cf`, run id `stage14_official_attempt2_52e9a1f`, COMPLETE
+- TEST samples: 16 total, 16 retrieval-evaluable, 0 excluded
+- Final integrated Recall@5: 14/16 = 87.5%, Success@5 = 87.5% (observed system-level comparison to Stage 5C standalone TEST baseline 12/16 = 75.0%: +2 hits, +12.5 percentage points)
+- RAGChecker metrics: Claim Recall = 77.9%, Context Precision = 41.2%, Faithfulness = 81.4% (metric unit: percent)
+- FinalResponse status distribution: answered = 13, needs_more_information = 2, insufficient_evidence = 1
+- Rewrite distribution: 0 rewrites = 14, 1 rewrite = 2. Retrieval passes: 1 pass = 14, 2 passes = 2. Final Top-5 misses = 2
+- Model snapshots: Generator `qwen3.7-plus-2026-05-26`, RAGChecker Extractor/Checker `qwen3.7-plus-2026-05-26`, Embedding `intfloat/multilingual-e5-small`, Reranker `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`
+- Historical baselines preserved: Stage 5C standalone formal TEST 12/16 = 75.0%, Stage 8B integrated DEV 15/24 = 62.5%, Stage 13 integrated DEV 15/24 = 62.5%
+
 Stage 13 — Integrated DEV Evaluation = DONE / PASS.
 
 Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS.
@@ -35,7 +47,7 @@ Stage 13 — Integrated DEV Evaluation = DONE / PASS.
 - DEV records: 26 total; 24 retrieval-evaluable; 2 non-retrieval exclusions
 - Success@5: 15/24 = 62.5%; Recall@5: 62.5%
 - Category Recall@5: down_drying 80.0%, down_washing 0.0%, dwr 83.3%, fleece 100.0%, hardshell_drying 100.0%, hardshell_washing 50.0%, softshell 100.0%, stain_removal 100.0%, washing 0.0%
-- Stage 8B integrated DEV baseline reproduced; Final TEST and RAGChecker NOT RUN
+- Stage 8B integrated DEV baseline reproduced; Stage 14 Final TEST + RAGChecker completed on Attempt #2
 
 - Shared LLM transport: IMPLEMENTED / VERIFIED
 - QueryAnalyzer shared transport migration: VERIFIED
@@ -70,7 +82,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 
 - Query Analysis, Frozen Hybrid Retriever, shared LLM transport, Agent State contract, Evidence Judge, Query Rewrite, and LangGraph routing: IMPLEMENTED / VERIFIED
 - Max-one-rewrite retrieval loop: IMPLEMENTED / VERIFIED
-- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration: IMPLEMENTED / VERIFIED; Vue QA integration: IMPLEMENTED / VERIFIED; Stage 14 final evaluation harness: IMPLEMENTED / CONTRACT FROZEN; Official Golden TEST and Formal RAGChecker: NOT RUN.
+- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration: IMPLEMENTED / VERIFIED; Vue QA integration: IMPLEMENTED / VERIFIED; Stage 14 final evaluation: DONE / PASS.
 
 ## Stage Status
 
@@ -95,7 +107,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 11A Backend Runtime + RAGService + FastAPI | DONE / PASS |
 | Stage 11B Vue + Browser End-to-End | DONE / PASS |
 | Stage 13 Integrated DEV Evaluation | DONE / PASS |
-| Stage 14 Final Evaluation Contract Freeze | IMPLEMENTED / FROZEN |
+| Stage 14 Final TEST + RAGChecker | DONE / PASS |
 
 ## Frozen Components
 
@@ -142,7 +154,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 14 Official Attempt #1 (commit `bdc256317f055d9b6385cb3973b3fda54c1ce264`) = INTERRUPTED (reason: citation consistency runtime validation failure; quality metrics: NOT PRODUCED; artifacts: NOT PRODUCED; generic citation runtime bug is being fixed with deterministic reconciliation without inspecting TEST content or tuning retrieval/generation quality). Official Golden TEST = PENDING RETRY. Formal RAGChecker = NOT RUN. Final metrics = NOT AVAILABLE. Stage 14 environment prerequisite: `en_core_web_sm` must be installed and loadable. Official Run Provenance Contract: Official Stage 14 evaluation requires `HEAD == origin/main`, zero tracked unstaged diff, zero tracked staged diff, and fixed model snapshots (`qwen3.7-plus-2026-05-26`). Real preflight gating is implemented before dataset access.
+Stage 14 — Final TEST + RAGChecker = DONE / PASS. The official Stage 14 evaluation completed cleanly on Attempt #2 (run id `stage14_official_attempt2_52e9a1f`, commit `52e9a1f676dca923a474124862978eac936d79cf`): 16 TEST records, 16 retrieval-evaluable, Success@5 14/16 = 87.5%, Recall@5 87.5%, Claim Recall 77.9%, Context Precision 41.2%, Faithfulness 81.4%. Attempt #1 (`bdc256317f055d9b6385cb3973b3fda54c1ce264`) is preserved as INTERRUPTED (citation validation runtime exception, no quality metrics).
 
 ## Current Blockers
 
@@ -150,11 +162,11 @@ None.
 
 ## Next Gate
 
-Stage 14 — Official TEST + RAGChecker (Attempt #2).
+Stage 15 — Full-chain Final Acceptance.
 
 ## Next Stage
 
-Stage 14 — Official TEST + RAGChecker.
+Stage 15 — Full-chain Final Acceptance.
 
 ## Retrieval / Agent Status
 
@@ -163,12 +175,13 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；Stage 14 final evaluation harness：IMPLEMENTED / CONTRACT FROZEN；Official Golden TEST 与 Formal RAGChecker：NOT RUN。
+LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、Citation Validation (deterministic reconciliation)、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；Stage 14 final evaluation：DONE / PASS (Recall@5 87.5%, Faithfulness 81.4%, Claim Recall 77.9%, Context Precision 41.2%)。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, Stage 11A/11B end-to-end web integration, and Stage 13 integrated DEV evaluation are IMPLEMENTED / VERIFIED. Stage 14 Final Evaluation Harness is IMPLEMENTED / CONTRACT FROZEN; Official Golden TEST and Formal RAGChecker remain NOT RUN.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, Stage 11A/11B end-to-end web integration, Stage 13 integrated DEV evaluation, and Stage 14 final TEST + RAGChecker evaluation are DONE / PASS. Next gate: Stage 15 Full-chain Final Acceptance.
 
 ## Git Checkpoints
 
+- `52e9a1f fix: reconcile answer citations deterministically` (Stage 14 Citation Runtime Bug Fix)
 - `bdc2563 fix: harden final evaluation preflight` (Stage 14 Final Evaluation Preflight Hardening)
 - `4590815 feat: freeze final evaluation contract` (Stage 14 Final Evaluation Contract Freeze)
 - `d386f07 feat: complete integrated dev evaluation` (Stage 13 Integrated DEV Evaluation)
