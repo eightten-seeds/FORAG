@@ -49,6 +49,12 @@ Stage 8B — Query Analysis → Frozen Hybrid Retriever = DONE / PASS.
 - DEV only; TEST NOT RUN; no test-driven tuning; no prompt tuning after baseline
 - Frozen Retriever unchanged; Golden Dataset / KB unchanged
 
+Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
+
+- Query Analysis, Frozen Hybrid Retriever, shared LLM transport, Agent State contract, Evidence Judge, Query Rewrite, and LangGraph routing: IMPLEMENTED / VERIFIED
+- Max-one-rewrite retrieval loop: IMPLEMENTED / VERIFIED
+- Answer Generation, Citation Generation, FastAPI QA integration, Vue QA integration, and final full-system evaluation: NOT IMPLEMENTED
+
 ## Stage Status
 
 | Stage | Status |
@@ -135,7 +141,7 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite、Answer Generation、FastAPI QA 和 Vue QA 尚未实现。
+LangGraph、Evidence Judge、Query Rewrite：IMPLEMENTED / VERIFIED；Answer Generation、Citation Generation、FastAPI QA 和 Vue QA 尚未实现。
 
 Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B LangGraph execution, Evidence Judge business logic, and Query Rewrite business logic are IMPLEMENTED / VERIFIED; Stage 9B has no Answer Generation. FastAPI QA and Vue QA remain unimplemented.
 

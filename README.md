@@ -11,8 +11,8 @@ Hybrid Retriever：IMPLEMENTED / VERIFIED / FROZEN。
 Stage 5C standalone Retriever formal TEST：12/16 = 75.0%。
 Query Analysis/Qwen：IMPLEMENTED / REAL API VERIFIED；Stage 8A = DONE。
 Stage 8B DEV integration：VERIFIED；standalone Success@5 50.0%，integrated Success@5 62.5%，提升 +3 hits / +12.5 pp。
-Stage 8B integrated TEST NOT RUN。Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Next Gate：Stage 9B。
-LangGraph、Evidence Judge、Answer Generation 和 Web QA：NOT IMPLEMENTED。
+Stage 8B integrated TEST NOT RUN。Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Stage 9B：Evidence Judge + Query Rewrite + LangGraph routing = DONE / PASS。Next Gate：Stage 10 — Answer Generation + Citation Generation。
+Answer Generation、Citation Generation、FastAPI QA 和 Vue QA：NOT IMPLEMENTED。
 
 ## 环境要求
 
@@ -60,5 +60,6 @@ Terminology, multilingual E5 embeddings, the Elasticsearch knowledge base,
 and the frozen Stage 5A/5B retrieval pipeline. Stage 5C formal standalone
 TEST is 12/16 = 75.0%; Stage 8A Query Analysis/Qwen and Stage 8B DEV
 integration are complete, while the integrated TEST was not run. Stage 9A
-shared LLM transport and Agent contract freeze are DONE / PASS; LangGraph execution,
-Evidence Judge, Answer Generation, and Web QA remain out of scope.
+shared LLM transport and Agent contract freeze are DONE / PASS; Stage 9B
+LangGraph execution, Evidence Judge, and Query Rewrite are DONE / PASS.
+Answer Generation, Citation Generation, and Web QA remain out of scope.
