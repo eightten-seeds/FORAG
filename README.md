@@ -6,7 +6,8 @@
 
 Golden Dataset v1：42 samples，dev/test = 26/16，Human Review complete，已冻结并绑定 `kb_v1`。
 
-尚未实现：BM25、Dense Retrieval、RRF、Cross-Encoder、Hybrid Retriever、Qwen / LangGraph、Web QA、Final Evaluation。
+已实现：BM25、Dense Retrieval、RRF、Cross-Encoder、Hybrid Retriever（Stage 5A/5B 已真实验证）。
+尚未实现：Stage 5C Retriever Evaluation & Freeze、Qwen / LangGraph、Web QA、Final Evaluation。
 
 ## 环境要求
 
@@ -50,6 +51,6 @@ certificate, and password configuration unchanged.
 
 Implemented pipeline stages include controlled official-source collection,
 Loader/Cleaner, structure-aware Chunking, deterministic Metadata and
-Terminology, multilingual E5 embeddings, and the Elasticsearch knowledge
-base. Golden Dataset, retrieval, reranking, Qwen/LangGraph, and Web QA remain
-out of scope.
+Terminology, multilingual E5 embeddings, the Elasticsearch knowledge base,
+and the Stage 5A/5B retrieval pipeline. Stage 5C evaluation/freeze,
+Qwen/LangGraph, and Web QA remain out of scope.

@@ -17,3 +17,6 @@ class RetrievalCandidate(BaseModel):
     bm25_rank: int | None = Field(default=None, ge=1)
     dense_score: float | None = None
     dense_rank: int | None = Field(default=None, ge=1)
+    rrf_score: float | None = None
+    rerank_score: float | None = None
+    rerank_rank: int | None = Field(default=None, ge=1)

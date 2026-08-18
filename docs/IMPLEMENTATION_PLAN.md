@@ -50,11 +50,11 @@
         ↓
 阶段4  知识库验收 + Golden Dataset
         ↓
-阶段5  BM25 Retriever
+阶段5A Retrieval Foundation（BM25 + Dense Retriever）
         ↓
-阶段6  Dense Retriever
+阶段5B Hybrid Retrieval（RRF + Cross-Encoder + Hybrid Retriever）
         ↓
-阶段7  RRF + Cross-Encoder + Hybrid Retriever
+阶段5C Retriever Evaluation & Freeze
         ↓
 阶段8  Qwen API + Query Analysis
         ↓

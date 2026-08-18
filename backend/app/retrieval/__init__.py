@@ -3,3 +3,7 @@
 Import concrete retrievers from their modules so BM25-only callers do not load
 the E5/Torch stack unnecessarily.
 """
+
+from backend.app.retrieval.models import RetrievalCandidate
+
+__all__ = ["RetrievalCandidate"]

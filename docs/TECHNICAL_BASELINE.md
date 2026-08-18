@@ -337,8 +337,8 @@ normalized_terms
 结构化字段：
 
 ```text
-brand.keyword
-technology.keyword
+brand
+technology
 garment_type.keyword
 care_stage.keyword
 ```

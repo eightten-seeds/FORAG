@@ -20,7 +20,7 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 Stage 5–7 — Hybrid Retrieval：IN PROGRESS。
 
-当前任务：Stage 5A Retrieval Foundation 已通过真实本地集成验收；下一步为 Stage 5B Hybrid Retrieval。
+当前任务：Stage 5A Retrieval Foundation 与 Stage 5B Hybrid Retrieval 已通过真实本地集成验收；下一步为 Stage 5C Retriever Evaluation & Freeze。
 
 ## Stage Status
 
@@ -32,9 +32,10 @@ Stage 5–7 — Hybrid Retrieval：IN PROGRESS。
 | Stage 3 Final Hardening | DONE |
 | Stage 4 Golden Dataset | DONE / FROZEN |
 | Stage 5A Retrieval Foundation | DONE / PASS |
-| Stage 5B Hybrid Retrieval | NOT STARTED |
+| Stage 5B Hybrid Retrieval | DONE / PASS |
+| Stage 5C Retriever Evaluation & Freeze | NOT STARTED |
 | Stage 6 Dense Retrieval | INCLUDED IN STAGE 5A / PASS |
-| Stage 7 RRF + Cross-Encoder | NOT STARTED |
+| Stage 7 RRF + Cross-Encoder | INCLUDED IN STAGE 5B / PASS |
 | Stage 8 Qwen Query Analysis | NOT STARTED |
 | Stage 9 LangGraph | NOT STARTED |
 | Stage 10+ | NOT STARTED |
@@ -84,25 +85,26 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 5A Retrieval Foundation 已完成并通过真实本地集成验收：BM25 与 Dense Retrieval 均已实现并验证。Stage 5B Hybrid Retrieval 尚未开始。
+Stage 5A Retrieval Foundation 与 Stage 5B Hybrid Retrieval 已完成并通过真实本地集成验收：BM25、Dense、Python RRF、Cross-Encoder 与 Unified Hybrid Retriever 均已实现并验证。Stage 5C Retriever Evaluation & Freeze 尚未开始。
 
 ## Current Blockers
 
-None。未完成 Human Review 和 Golden Dataset 冻结不是阻塞项，而是当前任务内容。
+None。Stage 5A 与 Stage 5B 已通过真实本地验收；Stage 5C 尚未开始。
 
 ## Next Gate
 
-Stage 5B Hybrid Retrieval。Hybrid Retriever 本身尚未 FROZEN。
+Stage 5C Retriever Evaluation & Freeze。Hybrid Retriever 已完成真实端到端验证，但尚未进入评测与冻结。
 
 ## Next Stage
 
-Stage 5B — Hybrid Retrieval，目标为 Python RRF Top30、Cross-Encoder 后取 Top5。当前状态：NOT STARTED。
+Stage 5C — Retriever Evaluation & Freeze，目标为运行开发集检索评测并冻结 Retriever 配置。当前状态：NOT STARTED。
 
 ## Retrieval / Agent Status
 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
-RRF、Cross-Encoder、Unified Hybrid Retriever、Qwen、LangGraph、FastAPI 问答和 Vue 问答尚未实现。
+Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED。
+Query Analysis/Qwen、LangGraph、FastAPI 问答和 Vue 问答尚未实现。
 
 ## Git Checkpoints
 
