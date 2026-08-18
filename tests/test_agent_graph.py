@@ -8,6 +8,7 @@ from backend.app.agent.graph import build_agent_graph
 from backend.app.agent.rewrite_models import RewriteResult
 from backend.app.agent.state import initialize_agent_state
 from backend.app.query_analysis.models import QueryAnalysisResult
+from backend.app.retrieval.hybrid import RetrievalTrace
 from backend.app.retrieval.models import RetrievalCandidate
 
 
@@ -51,6 +52,26 @@ class FakeRetriever:
     def retrieve(self, original_query: str, **kwargs: object) -> list[RetrievalCandidate]:
         self.calls.append({"original_query": original_query, **kwargs})
         return [candidate(f"chunk-{len(self.calls)}")]
+
+
+class FakeTraceRetriever:
+    def __init__(self) -> None:
+        self.trace_calls: list[dict[str, object]] = []
+        self.retrieve_calls = 0
+
+    def retrieve(self, original_query: str, **kwargs: object) -> list[RetrievalCandidate]:
+        self.retrieve_calls += 1
+        raise AssertionError("trace-capable retriever must not execute a second retrieval call")
+
+    def retrieve_with_trace(self, original_query: str, **kwargs: object) -> RetrievalTrace:
+        self.trace_calls.append({"original_query": original_query, **kwargs})
+        item = candidate("trace-chunk")
+        return RetrievalTrace(
+            bm25_candidates=[item],
+            dense_candidates=[item],
+            rrf_candidates=[item],
+            reranked_candidates=[item],
+        )
 
 
 class FakeJudge:
@@ -188,3 +209,23 @@ def test_graph_second_missing_information_stops_and_does_not_use_stale_reason() 
     assert len(rewriter.calls) == 1
     assert answer_generator.calls == []
     assert result["final_response"].status == "needs_more_information"
+
+
+def test_graph_uses_existing_retrieval_trace_once_per_pass_and_records_request_local_counts() -> None:
+    analyzer = FakeAnalyzer()
+    retriever = FakeTraceRetriever()
+    graph = build_agent_graph(
+        analyzer=analyzer,
+        retriever=retriever,
+        evidence_judge=FakeJudge([decision(True)]),
+        query_rewriter=FakeRewriter(),
+        answer_generator=FakeAnswerGenerator(),
+    )
+
+    result = graph.invoke(initialize_agent_state("question"))
+
+    assert retriever.retrieve_calls == 0
+    assert len(retriever.trace_calls) == 1
+    assert result["retrieval_pass_count"] == 1
+    assert result["retrieval_pass_traces"][0].bm25_count == 1
+    assert result["retrieval_pass_traces"][0].reranked_count == 1

@@ -16,6 +16,17 @@ InsufficientReason = Literal["retrieval_problem", "missing_information"]
 AgentRoute = Literal["retrieve", "rewrite", "ready_for_generation", "insufficient_evidence"]
 
 
+@dataclass(frozen=True)
+class RetrievalPassTrace:
+    """Request-local candidate counts from one real HybridRetriever pass."""
+
+    pass_index: int
+    bm25_count: int
+    dense_count: int
+    rrf_count: int
+    reranked_count: int
+
+
 class AgentState(TypedDict):
     """Minimal durable state contract for the future Stage 9 graph."""
 
@@ -26,6 +37,8 @@ class AgentState(TypedDict):
     technologies: tuple[str, ...]
     current_retrieval_query: str
     retrieval_evidence: tuple[RetrievalCandidate, ...]
+    retrieval_pass_count: int
+    retrieval_pass_traces: tuple[RetrievalPassTrace, ...]
     evidence_grade: EvidenceGrade
     insufficient_reason: InsufficientReason | None
     rewrite_count: int
@@ -57,6 +70,8 @@ def initialize_agent_state(original_query: str) -> AgentState:
         "technologies": (),
         "current_retrieval_query": original_query,
         "retrieval_evidence": (),
+        "retrieval_pass_count": 0,
+        "retrieval_pass_traces": (),
         "evidence_grade": "unassessed",
         "insufficient_reason": None,
         "rewrite_count": 0,
@@ -98,13 +113,22 @@ def first_retrieval_request(state: AgentState) -> FrozenRetrieverRequest:
 
 
 def record_retrieval_evidence(
-    state: AgentState, candidates: tuple[RetrievalCandidate, ...]
+    state: AgentState,
+    candidates: tuple[RetrievalCandidate, ...],
+    *,
+    trace: RetrievalPassTrace | None = None,
 ) -> AgentState:
     """Persist a retrieval pass and clear any prior evidence assessment."""
 
     updated = dict(state)
     updated.update(
         retrieval_evidence=candidates,
+        retrieval_pass_count=state["retrieval_pass_count"] + 1,
+        retrieval_pass_traces=(
+            state["retrieval_pass_traces"] + (trace,)
+            if trace is not None
+            else state["retrieval_pass_traces"]
+        ),
         evidence_grade="unassessed",
         insufficient_reason=None,
         route="retrieve",

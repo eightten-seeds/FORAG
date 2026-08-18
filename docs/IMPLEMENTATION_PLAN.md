@@ -62,9 +62,11 @@
         ↓
 阶段10 Answer Generation + Citation
         ↓
-阶段11 FastAPI
+阶段11 End-to-End Integration
         ↓
-阶段12 Vue Web
+阶段11A Backend Runtime + RAGService + FastAPI
+        ↓
+阶段11B Vue + Browser End-to-End
         ↓
 阶段13 Integrated / Final Evaluation
         ↓
@@ -1218,7 +1220,7 @@ E1~E5
 
 ------
 
-# 14. 阶段11：FastAPI
+# 14. 阶段11A：Backend Runtime + RAGService + FastAPI
 
 实现：
 
@@ -1306,7 +1308,7 @@ Vue
 
 ------
 
-# 15. 阶段12：Vue Web
+# 15. 阶段11B：Vue + Browser End-to-End
 
 只实现两个页面。
 

@@ -1225,7 +1225,7 @@ GET /api/metrics
 
 ```json
 {
-  "query": "GORE-TEX冲锋衣现在不挂水珠了怎么办？"
+  "question": "GORE-TEX冲锋衣现在不挂水珠了怎么办？"
 }
 ```
 

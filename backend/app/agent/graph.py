@@ -13,6 +13,7 @@ from backend.app.agent.evidence_judge import EvidenceJudge
 from backend.app.agent.query_rewriter import QueryRewriter
 from backend.app.agent.state import (
     AgentState,
+    RetrievalPassTrace,
     apply_reformulated_query,
     attach_query_analysis,
     first_retrieval_request,
@@ -21,6 +22,7 @@ from backend.app.agent.state import (
     rewrite_retrieval_request,
 )
 from backend.app.agent.terminal_responses import build_terminal_response
+from backend.app.observability import time_stage
 from backend.app.query_analysis.models import QueryAnalysisResult
 from backend.app.retrieval.models import RetrievalCandidate
 
@@ -59,44 +61,71 @@ def build_agent_graph(
     """Build the Stage 10 graph with a frozen one-rewrite retrieval control loop."""
 
     def query_analysis_node(state: AgentState) -> AgentState:
-        return attach_query_analysis(state, analyzer.analyze(state["original_query"]))
+        with time_stage("query_analysis"):
+            return attach_query_analysis(state, analyzer.analyze(state["original_query"]))
 
     def retrieve_node(state: AgentState) -> AgentState:
-        request = (
-            first_retrieval_request(state)
-            if state["rewrite_count"] == 0
-            else rewrite_retrieval_request(state)
-        )
-        candidates = retriever.retrieve(
-            original_query=request.original_query,
-            bm25_query_text=request.bm25_query_text,
-            brand=request.brand,
-            technologies=request.technologies,
-        )
-        return record_retrieval_evidence(state, tuple(candidates))
+        pass_index = state["retrieval_pass_count"] + 1
+        with time_stage(f"retrieval_pass_{pass_index}"):
+            request = (
+                first_retrieval_request(state)
+                if state["rewrite_count"] == 0
+                else rewrite_retrieval_request(state)
+            )
+            retrieve_with_trace = getattr(retriever, "retrieve_with_trace", None)
+            if callable(retrieve_with_trace):
+                trace = retrieve_with_trace(
+                    request.original_query,
+                    bm25_query_text=request.bm25_query_text,
+                    brand=request.brand,
+                    technologies=request.technologies,
+                )
+                candidates = trace.reranked_candidates
+                pass_trace = RetrievalPassTrace(
+                    pass_index=pass_index,
+                    bm25_count=len(trace.bm25_candidates),
+                    dense_count=len(trace.dense_candidates),
+                    rrf_count=len(trace.rrf_candidates),
+                    reranked_count=len(trace.reranked_candidates),
+                )
+            else:
+                candidates = retriever.retrieve(
+                    original_query=request.original_query,
+                    bm25_query_text=request.bm25_query_text,
+                    brand=request.brand,
+                    technologies=request.technologies,
+                )
+                pass_trace = None
+            return record_retrieval_evidence(state, tuple(candidates), trace=pass_trace)
 
     def evidence_judge_node(state: AgentState) -> AgentState:
-        decision = evidence_judge.judge(state["original_query"], state["retrieval_evidence"])
-        return record_evidence_grade(
-            state,
-            sufficient=decision.evidence_sufficient,
-            insufficient_reason=decision.insufficient_reason,
-        )
+        pass_index = state["retrieval_pass_count"]
+        with time_stage(f"evidence_judge_pass_{pass_index}"):
+            decision = evidence_judge.judge(state["original_query"], state["retrieval_evidence"])
+            return record_evidence_grade(
+                state,
+                sufficient=decision.evidence_sufficient,
+                insufficient_reason=decision.insufficient_reason,
+            )
 
     def rewrite_node(state: AgentState) -> AgentState:
-        result = query_rewriter.rewrite(state["original_query"], state["retrieval_evidence"])
-        return apply_reformulated_query(state, result.reformulated_query)
+        with time_stage("query_rewrite"):
+            result = query_rewriter.rewrite(state["original_query"], state["retrieval_evidence"])
+            return apply_reformulated_query(state, result.reformulated_query)
 
     def answer_generation_node(state: AgentState) -> AgentState:
-        draft = answer_generator.generate(state["original_query"], state["retrieval_evidence"])
-        updated = dict(state)
-        updated["final_response"] = build_answered_final_response(draft, state["retrieval_evidence"])
-        return updated  # type: ignore[return-value]
+        with time_stage("answer_generation"):
+            draft = answer_generator.generate(state["original_query"], state["retrieval_evidence"])
+        with time_stage("citation_validation"):
+            updated = dict(state)
+            updated["final_response"] = build_answered_final_response(draft, state["retrieval_evidence"])
+            return updated  # type: ignore[return-value]
 
     def terminal_response_node(state: AgentState) -> AgentState:
-        updated = dict(state)
-        updated["final_response"] = build_terminal_response(state)
-        return updated  # type: ignore[return-value]
+        with time_stage("terminal_response"):
+            updated = dict(state)
+            updated["final_response"] = build_terminal_response(state)
+            return updated  # type: ignore[return-value]
 
     graph = StateGraph(AgentState)
     graph.add_node("query_analysis", query_analysis_node)

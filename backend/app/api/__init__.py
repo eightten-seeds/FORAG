@@ -1,1 +1,1 @@
-"""HTTP API package placeholder for later stages."""
+"""HTTP-facing schemas and routing support."""

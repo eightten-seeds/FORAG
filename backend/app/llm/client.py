@@ -7,6 +7,7 @@ from typing import Any, Protocol
 
 from backend.app.config import Settings
 from backend.app.llm.errors import LLMConfigurationError, LLMProviderError
+from backend.app.observability import active_stage, time_stage
 
 
 class StructuredOutputTransport(Protocol):
@@ -63,14 +64,17 @@ class QwenOpenAICompatibleClient:
         temperature: float,
         enable_thinking: bool,
     ) -> str:
+        stage = active_stage() or "unknown"
+        call_type = stage.split("_pass_", maxsplit=1)[0]
         try:
-            completion = self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                response_format=response_format,
-                temperature=temperature,
-                extra_body={"enable_thinking": enable_thinking},
-            )
+            with time_stage(f"qwen_{call_type}"):
+                completion = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    response_format=response_format,
+                    temperature=temperature,
+                    extra_body={"enable_thinking": enable_thinking},
+                )
             content = completion.choices[0].message.content
         except Exception as exc:
             raise LLMProviderError("Qwen OpenAI-compatible request failed.") from exc

@@ -18,7 +18,15 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 10 — Answer Generation + Citation Generation = DONE / PASS.
+Stage 11 — End-to-End Integration = IN PROGRESS.
+
+Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS.
+
+- Lifespan runtime, RAGService, typed chat API, evidence/trace projection, CORS, health, and metrics: IMPLEMENTED / LOCAL TEST PASS
+- Real Backend HTTP E2E: PASS; representative smoke latency approximately 13s
+- The previous 180s executor termination was not reproduced during diagnosis
+- No current Stage 11A blocker
+- Stage 11B — Vue + Browser End-to-End: NOT STARTED
 
 - Shared LLM transport: IMPLEMENTED / VERIFIED
 - QueryAnalyzer shared transport migration: VERIFIED
@@ -74,7 +82,9 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 9A Shared LLM Foundation + Agent Contract Freeze | DONE / PASS |
 | Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing | DONE / PASS |
 | Stage 10 Answer Generation + Citation Generation | DONE / PASS |
-| Stage 11 FastAPI + Vue End-to-End Integration | NOT STARTED |
+| Stage 11 End-to-End Integration | IN PROGRESS |
+| Stage 11A Backend Runtime + RAGService + FastAPI | DONE / PASS |
+| Stage 11B Vue + Browser End-to-End | NOT STARTED |
 
 ## Frozen Components
 
@@ -121,7 +131,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 10 — Answer Generation + Citation Generation = DONE / PASS. FinalResponse, grounded Answer Generator, deterministic citation validation/source mapping, terminal responses, and final-response graph integration are implemented and verified. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
+Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS. Real Backend HTTP E2E completed successfully with representative smoke latency of approximately 13s; the previous 180s executor termination was not reproduced. Stage 11 remains IN PROGRESS pending Stage 11B Vue + Browser End-to-End. Stage 10 remains DONE / PASS. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
 
 ## Current Blockers
 
@@ -129,11 +139,11 @@ None.
 
 ## Next Gate
 
-Stage 11 — FastAPI + Vue End-to-End Integration.
+Stage 11B — Vue + Browser End-to-End.
 
 ## Next Stage
 
-Stage 11 — FastAPI + Vue End-to-End Integration.
+Stage 11B — Vue + Browser End-to-End.
 
 ## Retrieval / Agent Status
 
@@ -142,9 +152,9 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation：IMPLEMENTED / VERIFIED；FastAPI QA 和 Vue QA 尚未实现。
+LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration：IMPLEMENTED / VERIFIED；Vue QA 尚未实现。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing and Stage 10 final-response generation are IMPLEMENTED / VERIFIED. FastAPI QA and Vue QA remain unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, and Stage 11A FastAPI integration are IMPLEMENTED / VERIFIED. Vue QA remains unimplemented.
 
 ## Git Checkpoints
 

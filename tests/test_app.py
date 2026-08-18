@@ -1,36 +1,152 @@
+from __future__ import annotations
+
 from types import SimpleNamespace
 
 import pytest
-from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
-from backend.app.main import app, health
+from backend.app.agent.answer_models import FinalResponse, SourceCitation
+from backend.app.config import Settings
+from backend.app.main import create_app
+from backend.app.services.models import ChatTrace, EvidenceItem, RAGServiceResult
+from backend.app.services.rag_service import RAGServiceError
 
 
-def test_application_shell_is_initialized() -> None:
-    assert isinstance(app, FastAPI)
-    assert app.title == "Fashion Care RAG"
-    assert "/" in {route.path for route in app.routes}
-    assert "/docs" in {route.path for route in app.routes}
-    assert "/api/health" in {route.path for route in app.routes}
+def service_result(status: str = "answered") -> RAGServiceResult:
+    sources = (
+        [
+            SourceCitation(
+                evidence_id="E1",
+                chunk_id="chunk-1",
+                source_title="Official guide",
+                section_title="Care",
+                source_url="https://example.com/care",
+            )
+        ]
+        if status == "answered"
+        else []
+    )
+    return RAGServiceResult(
+        final_response=FinalResponse(
+            status=status,  # type: ignore[arg-type]
+            answer="Grounded answer [E1]" if status == "answered" else "Please provide more information.",
+            sources=sources,
+        ),
+        evidence=[
+            EvidenceItem(
+                rank=1,
+                chunk_id="chunk-1",
+                source_title="Official guide",
+                section_title="Care",
+                source_url="https://example.com/care",
+                content="Evidence content",
+            )
+        ],
+        trace=ChatTrace(
+            query_analysis_completed=True,
+            retrieval_pass_count=1,
+            rewrite_occurred=False,
+            rewrite_count=0,
+            evidence_grade="sufficient" if status == "answered" else "insufficient",
+            insufficient_reason=None if status == "answered" else "missing_information",
+            final_route="ready_for_generation" if status == "answered" else "insufficient_evidence",
+            final_status=status,
+            retrieval_passes=[],
+        ),
+    )
+
+
+class FakeService:
+    def __init__(self, result: RAGServiceResult | Exception) -> None:
+        self.result = result
+        self.calls: list[str] = []
+
+    def chat(self, question: str) -> RAGServiceResult:
+        self.calls.append(question)
+        if isinstance(self.result, Exception):
+            raise self.result
+        return self.result
 
 
 class FakeRuntime:
+    def __init__(self, service: FakeService) -> None:
+        self.rag_service = service
+        self.close_calls = 0
+
+    def close(self) -> None:
+        self.close_calls += 1
+
     def check_elasticsearch(self) -> dict[str, str]:
-        return {
-            "status": "ok",
-            "cluster_name": "test-cluster",
-            "version": "9.5.1",
-            "index_name": "fashion_care_kb_v1",
-        }
+        return {"status": "ok", "cluster_name": "test-cluster", "version": "9.5.1"}
 
 
-@pytest.mark.anyio
-async def test_health_reports_elasticsearch_status() -> None:
-    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(runtime=FakeRuntime())))
+def build_client(runtime: FakeRuntime) -> TestClient:
+    settings = Settings(frontend_url="http://frontend.test")
+    return TestClient(create_app(settings=settings, runtime_factory=lambda _: runtime))
 
-    body = await health(request)
 
-    assert body["api"] == "ok"
-    assert body["elasticsearch"] == "ok"
-    assert body["details"]["cluster_name"] == "test-cluster"
-    assert body["details"]["version"] == "9.5.1"
+def test_lifespan_builds_once_reuses_runtime_and_closes_it() -> None:
+    runtime = FakeRuntime(FakeService(service_result()))
+    with build_client(runtime) as client:
+        assert client.get("/api/health").status_code == 200
+        assert client.post("/api/chat", json={"question": "first"}).status_code == 200
+        assert client.post("/api/chat", json={"question": "second"}).status_code == 200
+        assert runtime.rag_service.calls == ["first", "second"]
+    assert runtime.close_calls == 1
+
+
+@pytest.mark.parametrize("terminal_status", ["answered", "needs_more_information", "insufficient_evidence"])
+def test_chat_projects_each_business_terminal_state_as_http_200(terminal_status: str) -> None:
+    with build_client(FakeRuntime(FakeService(service_result(terminal_status)))) as client:
+        response = client.post("/api/chat", json={"question": "  question  "})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["final_response"]["status"] == terminal_status
+    assert body["evidence"][0]["rank"] == 1
+    assert body["trace"]["retrieval_pass_count"] == 1
+    assert "original_query" not in body
+    assert "query_analysis" not in body
+
+
+@pytest.mark.parametrize("payload", [{"question": ""}, {"question": "   "}])
+def test_chat_rejects_empty_or_whitespace_question(payload: dict[str, str]) -> None:
+    with build_client(FakeRuntime(FakeService(service_result()))) as client:
+        response = client.post("/api/chat", json=payload)
+    assert response.status_code == 422
+
+
+def test_chat_maps_execution_errors_without_traceback_leakage() -> None:
+    with build_client(FakeRuntime(FakeService(RuntimeError("secret backend failure")))) as client:
+        response = client.post("/api/chat", json={"question": "question"})
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "workflow_failed"
+    assert "secret backend failure" not in response.text
+
+
+def test_chat_maps_service_contract_error_to_503() -> None:
+    with build_client(FakeRuntime(FakeService(RAGServiceError("missing final response")))) as client:
+        response = client.post("/api/chat", json={"question": "question"})
+    assert response.status_code == 503
+
+
+def test_health_metrics_and_configured_cors() -> None:
+    with build_client(FakeRuntime(FakeService(service_result()))) as client:
+        health = client.get("/api/health")
+        metrics = client.get("/api/metrics")
+        cors = client.options(
+            "/api/chat",
+            headers={
+                "Origin": "http://frontend.test",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+
+    assert health.status_code == 200
+    assert health.json()["runtime"] == "initialized"
+    assert metrics.json() == {
+        "available": False,
+        "metrics": None,
+        "reason": "Final full-system evaluation has not been run.",
+    }
+    assert cors.headers["access-control-allow-origin"] == "http://frontend.test"
