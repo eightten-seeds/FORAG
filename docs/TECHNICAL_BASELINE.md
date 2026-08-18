@@ -343,6 +343,8 @@ garment_type
 care_stage
 ```
 
+Stage 5C 冻结的 BM25 / Hybrid Retriever 输入接口仅支持 `brand` 与 `technologies`；Query Analysis 的 `technology` 可映射到 `technologies`。`garment_type`、`issue_type`、`intent` 暂留在 Agent State 或后续模块，`care_stage` 当前没有 Retriever 输入接口；不得为这些字段修改 Frozen Retriever。
+
 逻辑关系：
 
 ```text
@@ -397,7 +399,7 @@ Hard Filter
 term should / boost
 ```
 
-P0 不实现 Hard Filter / Boost 切换体系；仅允许在 dev 集上有限调整上述简单 Boost 权重。
+Stage 5C 后 Retriever Configuration 已 FROZEN；上述 field boosts 不再调整。后续允许变化仅限 Agent / Query Analysis 层，不得修改 Frozen Retriever 内部实现。
 
 ------
 
@@ -427,7 +429,7 @@ DENSE_NUM_CANDIDATES=100
                 RRF
 ```
 
-Top-20 只是候选池初始值。
+Stage 5C 已将 Top-20 冻结为正式 Dense/BM25 候选参数。
 
 ------
 
@@ -1526,15 +1528,7 @@ Rewrite最多1次
 BM25字段权重
 ```
 
-后面可根据真实：
-
-```text
-Recall@5
-Context Precision
-Latency
-```
-
-调整。
+Stage 5C 后不得根据 Recall@5、Context Precision 或 Latency 重新调整 Frozen Retriever Configuration。后续仅可在 Agent 层调整 Query Analysis prompt/schema、Evidence Judge prompt/threshold、Rewrite logic、routing 或 generation prompt。
 
 ------
 

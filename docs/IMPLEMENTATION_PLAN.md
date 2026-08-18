@@ -1370,9 +1370,9 @@ per-query result
 
 # 17. 冻结参数
 
-Dev 调整结束后：
+Stage 5C 已完成 dev/test evaluation，并已冻结 Retrieval Configuration。
 
-> 冻结 Retrieval Configuration。
+后续 dev 阶段允许调整 Agent、Query Analysis、Evidence、Rewrite 和 Generation 层；不得调整 Frozen Retriever Configuration，也不得使用 Stage 5C test misses 重新打开 Retriever tuning。
 
 之后不再因为 Test 结果修改参数。
 

@@ -108,6 +108,10 @@ Query Analysis/Qwen、LangGraph、FastAPI 问答和 Vue 问答尚未实现。
 
 ## Git Checkpoints
 
+- `a091688 feat(retrieval): complete Stage 5C evaluation and freeze hybrid retriever`（Retriever Evaluation & Freeze）
+- `7f712c5 feat: complete hybrid retrieval`（Hybrid Retrieval）
+- `b1bc052 feat: complete retrieval foundation`（Retrieval Foundation）
+- `41efd9f feat: finalize golden dataset evaluation set`（Golden Dataset）
 - `b3e73ca fix: harden knowledge base build pipeline`（KB Final Hardening）
 - `0bfa53e feat: build outdoor care knowledge base pipeline`
 
