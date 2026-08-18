@@ -8,9 +8,11 @@ from backend.app.agent.state import (
     first_retrieval_request,
     initialize_agent_state,
     record_evidence_grade,
+    record_retrieval_evidence,
     rewrite_retrieval_request,
 )
 from backend.app.query_analysis.models import QueryAnalysisResult
+from backend.app.retrieval.models import RetrievalCandidate
 
 
 def analysis_for(question: str) -> QueryAnalysisResult:
@@ -152,3 +154,26 @@ def test_invalid_or_missing_insufficient_reason_is_rejected(reason: object) -> N
 def test_query_analysis_original_query_must_match_agent_invariant() -> None:
     with pytest.raises(ValueError, match="must match"):
         attach_query_analysis(initialize_agent_state("first"), analysis_for("second"))
+
+
+def test_new_retrieval_evidence_resets_stale_evidence_assessment() -> None:
+    first_insufficient = record_evidence_grade(
+        initialize_agent_state("question"),
+        sufficient=False,
+        insufficient_reason="retrieval_problem",
+    )
+    rewritten = apply_reformulated_query(first_insufficient, "rewritten question")
+    candidate = RetrievalCandidate(
+        chunk_id="chunk-1",
+        content="new evidence",
+        source_id="source-1",
+        source_title="title",
+        source_url="https://example.com",
+        section_title="section",
+    )
+
+    refreshed = record_retrieval_evidence(rewritten, (candidate,))
+
+    assert refreshed["evidence_grade"] == "unassessed"
+    assert refreshed["insufficient_reason"] is None
+    assert refreshed["route"] == "retrieve"

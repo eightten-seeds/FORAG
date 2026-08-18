@@ -97,10 +97,15 @@ def first_retrieval_request(state: AgentState) -> FrozenRetrieverRequest:
 def record_retrieval_evidence(
     state: AgentState, candidates: tuple[RetrievalCandidate, ...]
 ) -> AgentState:
-    """Persist the current Top-K evidence without judging it."""
+    """Persist a retrieval pass and clear any prior evidence assessment."""
 
     updated = dict(state)
-    updated["retrieval_evidence"] = candidates
+    updated.update(
+        retrieval_evidence=candidates,
+        evidence_grade="unassessed",
+        insufficient_reason=None,
+        route="retrieve",
+    )
     return cast(AgentState, updated)
 
 

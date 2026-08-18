@@ -66,7 +66,7 @@ Stage 8B — Query Analysis → Frozen Hybrid Retriever = DONE / PASS.
 | Stage 8A Query Analysis Foundation | DONE / PASS |
 | Stage 8B Integrated DEV Retrieval | DONE / PASS |
 | Stage 9A Shared LLM Foundation + Agent Contract Freeze | DONE / PASS |
-| Stage 9B Agent Workflow Implementation | NOT STARTED |
+| Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing | DONE / PASS |
 | Stage 10+ | NOT STARTED |
 
 ## Frozen Components
@@ -114,7 +114,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 9A finalized: shared Qwen/OpenAI-compatible transport, QueryAnalyzer migration, Agent State, original_query invariant, first/rewrite retrieval contracts, and Stage 9/10 boundary are verified. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B remains DEV-only: integrated 15/24 = 62.5%; integrated TEST NOT RUN.
+Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS. Evidence routing: sufficient → ready_for_generation; missing_information → insufficient_evidence; retrieval_problem first pass → rewrite; second insufficient → insufficient_evidence. MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN; no Answer Generation. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
 
 ## Current Blockers
 
@@ -122,11 +122,11 @@ None.
 
 ## Next Gate
 
-Stage 9B — Agent workflow implementation from the frozen Stage 9A contracts.
+Stage 10 — Answer Generation + Citation Generation.
 
 ## Next Stage
 
-Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing.
+Stage 10 — Answer Generation + Citation Generation.
 
 ## Retrieval / Agent Status
 
@@ -137,7 +137,7 @@ Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
 LangGraph、Evidence Judge、Query Rewrite、Answer Generation、FastAPI QA 和 Vue QA 尚未实现。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Full LangGraph execution, Evidence Judge business logic, Query Rewrite business logic, Answer Generation, FastAPI QA and Vue QA remain unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B LangGraph execution, Evidence Judge business logic, and Query Rewrite business logic are IMPLEMENTED / VERIFIED; Stage 9B has no Answer Generation. FastAPI QA and Vue QA remain unimplemented.
 
 ## Git Checkpoints
 
