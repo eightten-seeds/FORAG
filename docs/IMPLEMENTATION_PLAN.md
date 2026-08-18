@@ -66,7 +66,7 @@
         ↓
 阶段12 Vue Web
         ↓
-阶段13 Retrieval Evaluation
+阶段13 Integrated / Final Evaluation
         ↓
 阶段14 RAGChecker
         ↓
@@ -1324,7 +1324,9 @@ Faithfulness
 
 ------
 
-# 16. 阶段13：Retrieval Evaluation
+# 16. 阶段13：Integrated / Final Evaluation
+
+Stage 5C 已完成 standalone Hybrid Retriever 的 Frozen Golden Dataset dev/test evaluation 与参数冻结。本阶段仅在 Query Analysis、Agent、Answer 等完整系统实现后，评估集成链路；不得使用 Stage 5C test misses 重新调整已冻结的 Retriever 参数。
 
 先使用：
 
@@ -1362,17 +1364,7 @@ category Recall@5
 per-query result
 ```
 
-可以根据 Dev 结果调整：
-
-```text
-BM25 Top-K
-Dense Top-K
-Field Boost
-RRF Top-N
-Rerank Top-K
-```
-
-但不做大规模消融实验。
+这里的 dev 仅用于集成链路验证；Stage 5C 已冻结的 Retriever configuration 不在后续 test 结果驱动下重新调整。
 
 ------
 

@@ -140,6 +140,26 @@ def test_hybrid_retriever_routes_query_inputs_and_uses_rrf_before_reranking():
     assert result[0].chunk_id == "shared"
 
 
+def test_retrieval_trace_is_observability_only_and_preserves_default_final_top_five():
+    bm25 = FakeBM25Retriever([candidate("shared", bm25_rank=1, bm25_score=4.0)])
+    dense = FakeDenseRetriever([candidate("shared", dense_rank=1, dense_score=0.8)])
+    reranker = FakeReranker()
+    retriever = HybridRetriever(bm25, dense, reranker)
+
+    trace = retriever.retrieve_with_trace("original question")
+
+    assert [item.chunk_id for item in trace.bm25_candidates] == ["shared"]
+    assert [item.chunk_id for item in trace.dense_candidates] == ["shared"]
+    assert [item.chunk_id for item in trace.rrf_candidates] == ["shared"]
+    assert trace.reranked_candidates == retriever.retrieve("original question")
+    assert bm25.calls == [
+        ("original question", {"brand": None, "technologies": ()}),
+        ("original question", {"brand": None, "technologies": ()}),
+    ]
+    assert dense.calls == ["original question", "original question"]
+    assert [call[0] for call in reranker.calls] == ["original question", "original question"]
+
+
 def test_hybrid_retriever_does_not_hide_retrieval_exceptions():
     class FailingDense:
         def search(self, query_text: str):

@@ -339,8 +339,8 @@ normalized_terms
 ```text
 brand
 technology
-garment_type.keyword
-care_stage.keyword
+garment_type
+care_stage
 ```
 
 逻辑关系：

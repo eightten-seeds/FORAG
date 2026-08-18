@@ -18,9 +18,9 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 5–7 — Hybrid Retrieval：IN PROGRESS。
+Stage 5C — Retriever Evaluation & Freeze：DONE / PASS。
 
-当前任务：Stage 5A Retrieval Foundation 与 Stage 5B Hybrid Retrieval 已通过真实本地集成验收；下一步为 Stage 5C Retriever Evaluation & Freeze。
+当前任务：Standalone Hybrid Retriever 已完成 Frozen Golden Dataset dev/test evaluation，架构与参数均已冻结；下一 Gate 为 Query Analysis 正式设计。
 
 ## Stage Status
 
@@ -33,7 +33,7 @@ Stage 5–7 — Hybrid Retrieval：IN PROGRESS。
 | Stage 4 Golden Dataset | DONE / FROZEN |
 | Stage 5A Retrieval Foundation | DONE / PASS |
 | Stage 5B Hybrid Retrieval | DONE / PASS |
-| Stage 5C Retriever Evaluation & Freeze | NOT STARTED |
+| Stage 5C Retriever Evaluation & Freeze | DONE / PASS |
 | Stage 6 Dense Retrieval | INCLUDED IN STAGE 5A / PASS |
 | Stage 7 RRF + Cross-Encoder | INCLUDED IN STAGE 5B / PASS |
 | Stage 8 Qwen Query Analysis | NOT STARTED |
@@ -85,25 +85,25 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 5A Retrieval Foundation 与 Stage 5B Hybrid Retrieval 已完成并通过真实本地集成验收：BM25、Dense、Python RRF、Cross-Encoder 与 Unified Hybrid Retriever 均已实现并验证。Stage 5C Retriever Evaluation & Freeze 尚未开始。
+Stage 5A Retrieval Foundation 与 Stage 5B Hybrid Retrieval 已完成并通过真实本地集成验收。Stage 5C 已使用 Frozen Golden Dataset 完成 standalone Hybrid Retriever dev/test evaluation：Retriever architecture / parameters 已 FROZEN；test 在冻结后首次有效运行，未发生 test-driven tuning。DEV：evaluable 24，Success@5 12/24 = 50.0%，Recall@5 50.0%。TEST：evaluable 16，Success@5 12/16 = 75.0%，Recall@5 75.0%。
 
 ## Current Blockers
 
-None。Stage 5A 与 Stage 5B 已通过真实本地验收；Stage 5C 尚未开始。
+None。Stage 5A、5B、5C 均已通过本地验收。
 
 ## Next Gate
 
-Stage 5C Retriever Evaluation & Freeze。Hybrid Retriever 已完成真实端到端验证，但尚未进入评测与冻结。
+正式设计 Query Analysis。Frozen standalone Hybrid Retriever 的参数不得因 Stage 5C test misses 重新打开。
 
 ## Next Stage
 
-Stage 5C — Retriever Evaluation & Freeze，目标为运行开发集检索评测并冻结 Retriever 配置。当前状态：NOT STARTED。
+Stage 8 — Qwen API + Query Analysis 正式设计。当前状态：NOT STARTED。
 
 ## Retrieval / Agent Status
 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
-Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED。
+Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
 Query Analysis/Qwen、LangGraph、FastAPI 问答和 Vue 问答尚未实现。
 
 ## Git Checkpoints

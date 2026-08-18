@@ -1,12 +1,23 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from backend.app.retrieval.bm25 import BM25Retriever
 from backend.app.retrieval.dense import DenseRetriever
 from backend.app.retrieval.models import RetrievalCandidate
 from backend.app.retrieval.reranker import CrossEncoderReranker
 from backend.app.retrieval.rrf import reciprocal_rank_fusion
+
+
+@dataclass(frozen=True)
+class RetrievalTrace:
+    """Candidate lists emitted by each standalone hybrid retrieval stage."""
+
+    bm25_candidates: list[RetrievalCandidate]
+    dense_candidates: list[RetrievalCandidate]
+    rrf_candidates: list[RetrievalCandidate]
+    reranked_candidates: list[RetrievalCandidate]
 
 
 class HybridRetriever:
@@ -39,6 +50,22 @@ class HybridRetriever:
         brand: str | None = None,
         technologies: Sequence[str] = (),
     ) -> list[RetrievalCandidate]:
+        return self.retrieve_with_trace(
+            original_query,
+            bm25_query_text=bm25_query_text,
+            brand=brand,
+            technologies=technologies,
+        ).reranked_candidates
+
+    def retrieve_with_trace(
+        self,
+        original_query: str,
+        *,
+        bm25_query_text: str | None = None,
+        brand: str | None = None,
+        technologies: Sequence[str] = (),
+    ) -> RetrievalTrace:
+        """Run the frozen hybrid path while preserving candidate-stage evidence."""
         bm25_candidates = self.bm25_retriever.search(
             bm25_query_text or original_query,
             brand=brand,
@@ -53,4 +80,10 @@ class HybridRetriever:
             bm25_weight=self.bm25_weight,
             dense_weight=self.dense_weight,
         )
-        return self.reranker.rerank(original_query, rrf_candidates)
+        reranked_candidates = self.reranker.rerank(original_query, rrf_candidates)
+        return RetrievalTrace(
+            bm25_candidates=bm25_candidates,
+            dense_candidates=dense_candidates,
+            rrf_candidates=rrf_candidates,
+            reranked_candidates=reranked_candidates,
+        )
