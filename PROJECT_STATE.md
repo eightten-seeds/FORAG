@@ -141,7 +141,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 13 — Integrated DEV Evaluation = DONE / PASS. The frozen system reproduced the Stage 8B integrated DEV baseline: 26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, and Recall@5 62.5%. Stage 5C standalone formal TEST remains 12/16 = 75.0%; Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN. Stage 13 Final TEST and RAGChecker remain NOT RUN.
+Stage 13 — Integrated DEV Evaluation = DONE / PASS. The frozen system reproduced the Stage 8B integrated DEV baseline: 26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, and Recall@5 62.5%. Stage 5C standalone formal TEST remains 12/16 = 75.0%; Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN. Stage 14 Final TEST and RAGChecker remain NOT RUN.
 
 ## Current Blockers
 

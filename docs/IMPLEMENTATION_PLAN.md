@@ -68,9 +68,9 @@
         ↓
 阶段11B Vue + Browser End-to-End
         ↓
-阶段13 Integrated / Final Evaluation
+阶段13 Integrated DEV Evaluation
         ↓
-阶段14 RAGChecker
+阶段14 Final TEST + RAGChecker
         ↓
 阶段15 全链路验收
         ↓
@@ -1416,7 +1416,7 @@ Stage 5C 已完成 dev/test evaluation，并已冻结 Retrieval Configuration。
 
 ------
 
-# 18. 阶段14：最终Evaluation
+# 18. 阶段14：Final TEST + RAGChecker
 
 ## Recall@5
 
