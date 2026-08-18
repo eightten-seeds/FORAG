@@ -18,15 +18,16 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
-Stage 11 — End-to-End Integration = IN PROGRESS.
+Stage 11 — End-to-End Integration = DONE / PASS.
 
 Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS.
 
-- Lifespan runtime, RAGService, typed chat API, evidence/trace projection, CORS, health, and metrics: IMPLEMENTED / LOCAL TEST PASS
+- Lifespan runtime, RAGService, typed chat API, evidence/trace projection, CORS, health, and metrics: IMPLEMENTED / PASS
 - Real Backend HTTP E2E: PASS; representative smoke latency approximately 13s
 - The previous 180s executor termination was not reproduced during diagnosis
 - No current Stage 11A blocker
-- Stage 11B — Vue + Browser End-to-End: NOT STARTED
+- Stage 11B — Vue + Browser End-to-End: DONE / PASS
+- Real Browser E2E: PASS; synthetic answered flow rendered answer, sources, evidence, trace, and browser request timing
 
 - Shared LLM transport: IMPLEMENTED / VERIFIED
 - QueryAnalyzer shared transport migration: VERIFIED
@@ -61,7 +62,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 
 - Query Analysis, Frozen Hybrid Retriever, shared LLM transport, Agent State contract, Evidence Judge, Query Rewrite, and LangGraph routing: IMPLEMENTED / VERIFIED
 - Max-one-rewrite retrieval loop: IMPLEMENTED / VERIFIED
-- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration, Vue QA integration, and final full-system evaluation: NOT IMPLEMENTED
+- Answer Generation, Citation Generation, and deterministic source mapping: IMPLEMENTED / VERIFIED; FastAPI QA integration: IMPLEMENTED / VERIFIED; Vue QA integration: IMPLEMENTED / VERIFIED; final full-system evaluation: NOT IMPLEMENTED
 
 ## Stage Status
 
@@ -82,9 +83,9 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 9A Shared LLM Foundation + Agent Contract Freeze | DONE / PASS |
 | Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing | DONE / PASS |
 | Stage 10 Answer Generation + Citation Generation | DONE / PASS |
-| Stage 11 End-to-End Integration | IN PROGRESS |
+| Stage 11 End-to-End Integration | DONE / PASS |
 | Stage 11A Backend Runtime + RAGService + FastAPI | DONE / PASS |
-| Stage 11B Vue + Browser End-to-End | NOT STARTED |
+| Stage 11B Vue + Browser End-to-End | DONE / PASS |
 
 ## Frozen Components
 
@@ -131,7 +132,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 11A — Backend Runtime + RAGService + FastAPI = DONE / PASS. Real Backend HTTP E2E completed successfully with representative smoke latency of approximately 13s; the previous 180s executor termination was not reproduced. Stage 11 remains IN PROGRESS pending Stage 11B Vue + Browser End-to-End. Stage 10 remains DONE / PASS. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
+Stage 11 — End-to-End Integration = DONE / PASS. Stage 11A Backend Runtime + RAGService + FastAPI and Stage 11B Vue + Browser End-to-End are DONE / PASS. Real Browser E2E completed an answered synthetic flow with answer, sources, evidence, trace, and browser request timing; final full-system evaluation has not run. Stage 10 remains DONE / PASS. Stage 9B remains DONE / PASS: MAX_REWRITE_COUNT = 1; Query Analysis runs once; Frozen Retriever UNCHANGED / FROZEN. Stage 5C standalone formal TEST remains 12/16 = 75.0%. Stage 8B integrated DEV remains 15/24 = 62.5%; integrated TEST NOT RUN.
 
 ## Current Blockers
 
@@ -139,11 +140,11 @@ None.
 
 ## Next Gate
 
-Stage 11B — Vue + Browser End-to-End.
+Stage 13 — Integrated / Final Evaluation.
 
 ## Next Stage
 
-Stage 11B — Vue + Browser End-to-End.
+Stage 13 — Integrated / Final Evaluation.
 
 ## Retrieval / Agent Status
 
@@ -152,12 +153,18 @@ Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Python RRF：IMPLEMENTED。Cross-Encoder：IMPLEMENTED。Unified Hybrid Retriever：IMPLEMENTED / REAL E2E VERIFIED / FROZEN。Retriever architecture / parameters：FROZEN。
-LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration：IMPLEMENTED / VERIFIED；Vue QA 尚未实现。
+LangGraph、Evidence Judge、Query Rewrite、Answer Generation、Citation Generation、FastAPI backend integration、Vue QA integration：IMPLEMENTED / VERIFIED；final full-system evaluation 尚未实现。
 
-Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, and Stage 11A FastAPI integration are IMPLEMENTED / VERIFIED. Vue QA remains unimplemented.
+Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing, Stage 10 final-response generation, and Stage 11A/11B end-to-end web integration are IMPLEMENTED / VERIFIED. Final full-system evaluation remains unimplemented.
 
 ## Git Checkpoints
 
+- `227e543 feat: integrate rag backend api`（Stage 11A Backend Runtime + RAGService + FastAPI）
+- `584a7d7 feat: implement grounded answer and citation generation`（Stage 10 Answer Generation + Citation Generation）
+- `5855999 feat: implement evidence rewrite agent routing`（Stage 9B Evidence Judge + Query Rewrite + LangGraph Routing）
+- `ca9382d refactor: establish shared llm and agent contracts`（Stage 9A Shared LLM Foundation + Agent Contract Freeze）
+- `cf33d5f feat: evaluate query analysis integrated retrieval`（Stage 8B Integrated DEV Retrieval）
+- `ad88cfa feat: implement qwen query analysis foundation`（Stage 8A Query Analysis Foundation）
 - `a091688 feat(retrieval): complete Stage 5C evaluation and freeze hybrid retriever`（Retriever Evaluation & Freeze）
 - `7f712c5 feat: complete hybrid retrieval`（Hybrid Retrieval）
 - `b1bc052 feat: complete retrieval foundation`（Retrieval Foundation）

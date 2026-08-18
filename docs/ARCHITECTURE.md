@@ -1233,10 +1233,33 @@ GET /api/metrics
 
 ```json
 {
-  "answer": "...",
-  "sources": [],
-  "retrieved_chunks": [],
-  "trace": {}
+  "final_response": {
+    "status": "answered",
+    "answer": "... [E1]",
+    "sources": [
+      {
+        "evidence_id": "E1",
+        "source_title": "...",
+        "section_title": "...",
+        "source_url": "..."
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "rank": 1,
+      "chunk_id": "...",
+      "content": "..."
+    }
+  ],
+  "trace": {
+    "retrieval_pass_count": 1,
+    "rewrite_count": 0,
+    "evidence_grade": "sufficient",
+    "final_route": "ready_for_generation",
+    "final_status": "answered",
+    "retrieval_passes": []
+  }
 }
 ```
 
@@ -1244,13 +1267,24 @@ GET /api/metrics
 
 ```json
 {
-  "answer": null,
-  "needs_more_information": true,
-  "message": "请补充服装品牌、材料或护理标签信息。",
-  "sources": [],
-  "retrieved_chunks": []
+  "final_response": {
+    "status": "needs_more_information",
+    "answer": "...",
+    "sources": []
+  },
+  "evidence": [],
+  "trace": {
+    "evidence_grade": "insufficient",
+    "insufficient_reason": "missing_information",
+    "final_route": "insufficient_evidence",
+    "final_status": "needs_more_information",
+    "retrieval_passes": []
+  }
 }
 ```
+
+`final_response.status` 只有 `answered`、`needs_more_information` 和
+`insufficient_evidence` 三种业务终态，它们都是正常的 HTTP 200 ChatResponse。
 
 ------
 
@@ -1287,12 +1321,9 @@ Top-K Evidence
 
 展示：
 
-```text
-Recall@5
-Claim Recall
-Context Precision
-Faithfulness
-```
+当前 `GET /api/metrics` 返回 `available=false` 和 `metrics=null`。因此前端只
+显示“最终系统评测尚未运行”，不展示或伪造任何 Recall、Claim Recall、Context
+Precision 或 Faithfulness 指标。
 
 通过：
 

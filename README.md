@@ -11,8 +11,8 @@ Hybrid Retriever：IMPLEMENTED / VERIFIED / FROZEN。
 Stage 5C standalone Retriever formal TEST：12/16 = 75.0%。
 Query Analysis/Qwen：IMPLEMENTED / REAL API VERIFIED；Stage 8A = DONE。
 Stage 8B DEV integration：VERIFIED；standalone Success@5 50.0%，integrated Success@5 62.5%，提升 +3 hits / +12.5 pp。
-Stage 8B integrated TEST NOT RUN。Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Stage 9B：Evidence Judge + Query Rewrite + LangGraph routing = DONE / PASS。Stage 10：Answer Generation + Citation Generation = DONE / PASS。Stage 11A：Backend FastAPI integration = IMPLEMENTED / PASS。Real Backend HTTP E2E = PASS。Stage 11 overall = IN PROGRESS。Next Gate：Stage 11B — Vue + Browser End-to-End。
-Answer Generation、Citation Generation、Citation Validation、FastAPI backend integration：IMPLEMENTED；Real Backend HTTP E2E：PASS；Vue QA：NOT IMPLEMENTED。
+Stage 8B integrated TEST NOT RUN。Stage 9A：Shared LLM Foundation + Agent Contract Freeze = DONE / PASS。Stage 9B：Evidence Judge + Query Rewrite + LangGraph routing = DONE / PASS。Stage 10：Answer Generation + Citation Generation = DONE / PASS。Stage 11A：Backend FastAPI integration = IMPLEMENTED / PASS。Stage 11B：Vue + Browser End-to-End = IMPLEMENTED / PASS。Real Backend HTTP E2E 与 Browser E2E 均为 PASS。Stage 11 overall = DONE / PASS。Next Gate：Stage 13 — Integrated / Final Evaluation。
+Answer Generation、Citation Generation、Citation Validation、FastAPI backend integration、Vue QA integration：IMPLEMENTED；final full-system evaluation：NOT IMPLEMENTED。
 
 ## 环境要求
 
@@ -63,6 +63,8 @@ integration are complete, while the integrated TEST was not run. Stage 9A
 shared LLM transport and Agent contract freeze are DONE / PASS; Stage 9B
 LangGraph execution, Evidence Judge, and Query Rewrite are DONE / PASS.
 Stage 10 Answer Generation and Citation Validation are DONE / PASS;
-Stage 11A Backend FastAPI integration is IMPLEMENTED / PASS; Real Backend
-HTTP E2E is PASS; Stage 11 overall is IN PROGRESS; the next gate is Stage
-11B Vue + Browser End-to-End. Vue QA is NOT IMPLEMENTED.
+Stage 11A Backend FastAPI integration is IMPLEMENTED / PASS; Stage 11B Vue
+and Browser End-to-End integration is IMPLEMENTED / PASS. Real Backend HTTP
+E2E and Browser E2E are PASS; the complete web RAG system is IMPLEMENTED.
+Final system evaluation has not run; the next gate is Stage 13 Integrated /
+Final Evaluation.
