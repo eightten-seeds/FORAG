@@ -142,7 +142,7 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 14 Final Evaluation Harness = IMPLEMENTED / CONTRACT FROZEN. Stage 13 Integrated DEV Evaluation = DONE / PASS (26 DEV records, 24 retrieval-evaluable, 2 exclusions, Success@5 15/24 = 62.5%, Recall@5 62.5%). Official Golden TEST = NOT RUN. Formal RAGChecker = NOT RUN. Final metrics = NOT AVAILABLE. Stage 14 environment prerequisite: `en_core_web_sm` must be installed and loadable. Official Run Provenance Contract: Official Stage 14 evaluation requires `HEAD == origin/main`, zero tracked unstaged diff, zero tracked staged diff, and fixed model snapshots (`qwen3.7-plus-2026-05-26`). Real preflight gating is implemented before dataset access.
+Stage 14 Official Attempt #1 (commit `bdc256317f055d9b6385cb3973b3fda54c1ce264`) = INTERRUPTED (reason: citation consistency runtime validation failure; quality metrics: NOT PRODUCED; artifacts: NOT PRODUCED; generic citation runtime bug is being fixed with deterministic reconciliation without inspecting TEST content or tuning retrieval/generation quality). Official Golden TEST = PENDING RETRY. Formal RAGChecker = NOT RUN. Final metrics = NOT AVAILABLE. Stage 14 environment prerequisite: `en_core_web_sm` must be installed and loadable. Official Run Provenance Contract: Official Stage 14 evaluation requires `HEAD == origin/main`, zero tracked unstaged diff, zero tracked staged diff, and fixed model snapshots (`qwen3.7-plus-2026-05-26`). Real preflight gating is implemented before dataset access.
 
 ## Current Blockers
 
@@ -150,7 +150,7 @@ None.
 
 ## Next Gate
 
-Stage 14 — Official TEST + RAGChecker.
+Stage 14 — Official TEST + RAGChecker (Attempt #2).
 
 ## Next Stage
 
@@ -169,6 +169,7 @@ Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing,
 
 ## Git Checkpoints
 
+- `bdc2563 fix: harden final evaluation preflight` (Stage 14 Final Evaluation Preflight Hardening)
 - `4590815 feat: freeze final evaluation contract` (Stage 14 Final Evaluation Contract Freeze)
 - `d386f07 feat: complete integrated dev evaluation` (Stage 13 Integrated DEV Evaluation)
 

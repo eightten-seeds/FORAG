@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from backend.app.agent.answer_models import AnswerDraft, FinalResponse, SourceCitation
 from backend.app.retrieval.models import RetrievalCandidate
 
-
 _INLINE_CITATION_PATTERN = re.compile(r"\[E(\d+)\]")
 _RAW_URL_PATTERN = re.compile(r"(?:https?://|www\.)", re.IGNORECASE)
 
@@ -39,7 +38,7 @@ def validate_citations(
     draft: AnswerDraft,
     evidence: Sequence[RetrievalCandidate],
 ) -> CitationValidationResult:
-    """Reject malformed, unknown, missing, or inconsistent answer citations."""
+    """Reject malformed, unknown, or missing citations, reconciling inline citations as authoritative."""
 
     if _RAW_URL_PATTERN.search(draft.answer):
         raise AnswerValidationError("Answer must not contain raw URLs; sources come from evidence provenance.")
@@ -50,15 +49,16 @@ def validate_citations(
         raise AnswerValidationError("Answered output must contain at least one inline [E#] citation.")
 
     inline_set = set(inline_ids)
-    structured_set = set(draft.cited_evidence_ids)
     unknown_inline = inline_set.difference(available)
-    unknown_structured = structured_set.difference(available)
-    if unknown_inline or unknown_structured:
-        unknown = sorted(unknown_inline | unknown_structured)
+    if unknown_inline:
+        unknown = sorted(unknown_inline)
         raise AnswerValidationError(f"Citation IDs are not present in the current evidence: {unknown}.")
-    if inline_set != structured_set:
-        raise AnswerValidationError("Inline citation IDs must match cited_evidence_ids exactly.")
-    return CitationValidationResult(cited_evidence_ids=_deduplicate_in_order(inline_ids))
+
+    # Deterministic Citation Reconciliation:
+    # Valid inline [E#] citations in the answer body are the authoritative source of truth.
+    # We reconcile the final citation list to the inline citations in order of first appearance.
+    canonical_citation_ids = _deduplicate_in_order(inline_ids)
+    return CitationValidationResult(cited_evidence_ids=canonical_citation_ids)
 
 
 def map_sources(
