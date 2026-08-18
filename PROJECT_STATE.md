@@ -18,6 +18,20 @@ FORAG 是一个基于品牌官方护理资料、面向户外功能服装的可�
 
 ## Current Stage
 
+Stage 8A — Query Analysis Foundation = DONE / PASS.
+
+- Provider: Qwen / 百炼
+- Model: `qwen3.7-plus`
+- Protocol: OpenAI-compatible Chat Completions
+- Structured output: strict JSON Schema
+- Local validation: Pydantic
+- `enable_thinking=False`
+- Deterministic Query Analysis → Frozen Retriever adapter verified
+- Real Qwen API smoke: 3/3 PASS
+- Frozen Hybrid Retriever unchanged
+
+## Historical Pre-Stage 8A State
+
 Stage 5C — Retriever Evaluation & Freeze：DONE / PASS。
 
 当前任务：Standalone Hybrid Retriever 已完成 Frozen Golden Dataset dev/test evaluation，架构与参数均已冻结；下一 Gate 为 Query Analysis 正式设计。
@@ -36,7 +50,7 @@ Stage 5C — Retriever Evaluation & Freeze：DONE / PASS。
 | Stage 5C Retriever Evaluation & Freeze | DONE / PASS |
 | Stage 6 Dense Retrieval | INCLUDED IN STAGE 5A / PASS |
 | Stage 7 RRF + Cross-Encoder | INCLUDED IN STAGE 5B / PASS |
-| Stage 8 Qwen Query Analysis | NOT STARTED |
+| Stage 8 Qwen Query Analysis | DONE / PASS |
 | Stage 9 LangGraph | NOT STARTED |
 | Stage 10+ | NOT STARTED |
 
@@ -93,13 +107,23 @@ None。Stage 5A、5B、5C 均已通过本地验收。
 
 ## Next Gate
 
+Stage 8B — Query Analysis → Frozen Hybrid Retriever DEV-only integrated retrieval evaluation.
+
+## Historical Next Gate
+
 正式设计 Query Analysis。Frozen standalone Hybrid Retriever 的参数不得因 Stage 5C test misses 重新打开。
 
 ## Next Stage
 
+Stage 8B — Query Analysis → Frozen Hybrid Retriever DEV-only integrated retrieval evaluation.
+
+## Historical Next Stage
+
 Stage 8 — Qwen API + Query Analysis 正式设计。当前状态：NOT STARTED。
 
-## Retrieval / Agent Status
+## Retrieval / Agent Status (through Stage 5C)
+
+Query Analysis/Qwen: IMPLEMENTED / REAL API VERIFIED (3/3 smoke); deterministic adapter verified; Frozen Hybrid Retriever unchanged.
 
 BM25：IMPLEMENTED / REAL INTEGRATION VERIFIED。
 Dense Retrieval：IMPLEMENTED / REAL INTEGRATION VERIFIED。
