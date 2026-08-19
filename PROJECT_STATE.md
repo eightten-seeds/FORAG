@@ -108,7 +108,8 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 11B Vue + Browser End-to-End | DONE / PASS |
 | Stage 13 Integrated DEV Evaluation | DONE / PASS |
 | Stage 14 Final TEST + RAGChecker | DONE / PASS |
-| Stage 15 Full-chain Verification | IMPLEMENTATION / EVALUATION PASS (CHECKPOINT PENDING REVIEW) |
+| Stage 15 Full-chain Verification | DONE / PASS |
+| Stage 16 Final Documentation + User Guide + Defense Pack + Resume Pack | IN PROGRESS |
 
 ## Frozen Components
 
@@ -155,9 +156,8 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 15 — Full-chain Final Acceptance (Stage 15A Real Browser E2E, Stage 15B High-Aesthetic Regression, Stage 15C Final Regression + DEV Retriever Ablation + Local Latency Smoke).
-- Stage 15C implementation/evaluation: PASS
-- Stage 15 checkpoint: PENDING REVIEW
+Stage 16 — Final Documentation + User Guide + Defense Pack + Resume Pack: IN PROGRESS.
+- Stage 15 Full-chain Final Acceptance (15A/15B/15C): CLOSED / PASS (Final remote-reviewed commit: `45ad747e4bedc4c6af93fc9c8dbe51a3ac8d2f55`).
 
 ## Current Blockers
 
@@ -165,7 +165,7 @@ None.
 
 ## Next Gate
 
-Stage 16 — User Documentation & Project Packaging.
+Project Delivery & Final Defense.
 
 ### Stage 16 User Guide Mandatory Requirements
 
@@ -200,6 +200,9 @@ Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing,
 
 ## Git Checkpoints
 
+- `45ad747 fix: finalize stage 15 evidence terminology` (Stage 15 Final Terminology Cleanup - CLOSED)
+- `c88f4b4 fix: tighten stage 15 presentation accuracy` (Stage 15 Remote Review Accuracy Fix)
+- `9891289 feat: complete stage 15 productization and validation` (Stage 15 Full-chain Checkpoint)
 - `ce8c82e docs: freeze official final evaluation results` (Stage 14 Official Result Freeze)
 - `52e9a1f fix: reconcile answer citations deterministically` (Stage 14 Citation Runtime Bug Fix)
 - `bdc2563 fix: harden final evaluation preflight` (Stage 14 Final Evaluation Preflight Hardening)
