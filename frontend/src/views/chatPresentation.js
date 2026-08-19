@@ -1,7 +1,7 @@
 const businessStatus = {
   answered: {
     title: '已根据当前证据生成回答',
-    description: '以下建议严格基于知识库官方资料生成并标注出处。',
+    description: '以下建议根据当前检索到的知识库官方资料生成，并标注出处。',
   },
   needs_more_information: {
     title: '需要补充信息',

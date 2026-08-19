@@ -2,13 +2,13 @@
 
 ## 1. Executive Summary & Verification Context
 
-FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与端到端闭环验证，涵盖真实浏览器端到端交互（Stage 15A）、前端高质感视觉设计与无死角回归（Stage 15B）、以及全量代码回归、DEV 检索模块消融与本地端到端延迟测试（Stage 15C）。
+FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与端到端闭环验证，涵盖真实浏览器端到端交互（Stage 15A）、前端高质感视觉设计与系统化前端回归检查（Stage 15B）、以及全量代码回归、DEV 检索模块消融与本地端到端延迟测试（Stage 15C）。
 
 本阶段严格遵循**算法与知识库绝对冻结**原则：
 - 知识库（14 个官方来源，234 个知识切片，234 个 384 维向量）自 Stage 3/4 起严格冻结。
 - 检索器（Elasticsearch 9.5.1 BM25 + Dense + RRF + Cross-Encoder）自 Stage 5C 起严格冻结。
 - Agent 状态机、Prompt 与生成逻辑自 Stage 10/11 起严格冻结。
-- 官方评测基准（Stage 14 盲测结果）严格保持，禁止重新运行 TEST 集或 RAGChecker 评测框架。
+- 官方评测基准（Stage 14 正式 TEST 结果）严格保持，禁止重新运行 TEST 集或 RAGChecker 评测框架。
 
 ---
 
@@ -28,7 +28,7 @@ FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与�
   - 视觉冻结为 02:08 高质感版式，修正 Cross-Encoder 冗余文案。
   - 完成 67 项前端回归检查，覆盖主要业务状态、交互、错误、安全与响应式场景（业务状态机 `answered`, `needs_more_information`, `insufficient_evidence`、交互安全 XSS 转义、`v-html` 0 出现、外链安全性、防重复提交门禁、异常捕获与降级 Chat 500、Network Failure、Health 离线告警、Metrics 异常提示）。
   - 验证多分辨率适配（1366×768 首屏无遮挡、1920×1080 居中双栏、800×1024 平板单栏流）。
-  - 前端单元测试 7/7 全部通过，Vite 生产构建 0 错误。
+  - 最终前端单元测试 8/8 全部通过，Vite 生产构建 0 错误。
 
 ### Stage 15C — Final Regression, DEV Retriever Ablation & Latency Smoke (IMPLEMENTATION / EVALUATION PASS)
 - **目标**：执行全栈最终代码回归、DEV 检索模块消融实验、本机端到端延迟测试与证据链固化。
@@ -134,7 +134,7 @@ FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与�
 
 ## 5. Frozen Official Metrics Reference (Stage 14 Baseline)
 
-系统已冻结并发布的官方盲测指标（基于 16 个真实 TEST 盲测样本与 RAGChecker 0.1.9 自动化评估标准；全量 Golden Dataset 共 42 条样本）：
+系统已冻结并发布的正式 TEST 指标（基于 16 条正式 TEST 样本与 RAGChecker 0.1.9 自动化评估标准；全量 Golden Dataset 共 42 条样本）：
 
 | 官方指标 (Official Metric) | 官方公布数值 | 历史 Standalone TEST 对比 | 观测差异与客观结论说明 |
 | :--- | :---: | :---: | :--- |

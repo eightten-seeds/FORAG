@@ -30,7 +30,7 @@ onMounted(async () => {
         </div>
         <h1 class="metrics-main-title">系统评测基准与量化结果</h1>
         <p class="metrics-lead-desc">
-          基于冻结的正式 TEST 盲测集（16 个真实场景样本）与 RAGChecker 0.1.9 事实级自动化评测标准。
+          基于冻结的正式 TEST 集（16 个样本）与 RAGChecker 0.1.9 事实级自动化评测。
         </p>
       </div>
 
@@ -80,7 +80,7 @@ onMounted(async () => {
         <div class="study-meta-bar">
           <div class="study-meta-item">
             <span class="meta-label">TEST 测试集规模：</span>
-            <strong>{{ metricsResponse.metrics.test_samples }} 样本（全量盲测未污染）</strong>
+            <strong>{{ metricsResponse.metrics.test_samples }} 样本（冻结正式 TEST 集）</strong>
           </div>
           <span class="meta-divider">/</span>
           <div class="study-meta-item">
@@ -104,7 +104,7 @@ onMounted(async () => {
             <div class="analysis-item-row">
               <span class="item-index">01</span>
               <div class="item-text-group">
-                <strong class="item-headline">正确证据最终召回表现稳定 (Recall@5 = 87.5%)</strong>
+                <strong class="item-headline">正确证据最终召回率 (Recall@5 = 87.5%)</strong>
                 <p class="item-body">
                   在 16 个真实测试样本中，14 个样本在最终 Top-5 准确命中了目标黄金切片。最终集成系统相较 standalone retrieval baseline，Recall@5 观察到 +12.5 个百分点差异。由于未对所有集成模块进行独立因果消融，不将该差异归因于单一组件。
                 </p>
