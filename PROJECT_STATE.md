@@ -108,6 +108,7 @@ Stage 9B — Evidence Judge + Query Rewrite + LangGraph Routing = DONE / PASS.
 | Stage 11B Vue + Browser End-to-End | DONE / PASS |
 | Stage 13 Integrated DEV Evaluation | DONE / PASS |
 | Stage 14 Final TEST + RAGChecker | DONE / PASS |
+| Stage 15 Full-chain Verification | IMPLEMENTATION / EVALUATION PASS (CHECKPOINT PENDING REVIEW) |
 
 ## Frozen Components
 
@@ -154,7 +155,9 @@ KB v1 已冻结。未经确定性测试失败、确认的数据错误、正式�
 
 ## Current Task
 
-Stage 14 — Final TEST + RAGChecker = DONE / PASS. The official Stage 14 evaluation completed cleanly on Attempt #2 (run id `stage14_official_attempt2_52e9a1f`, commit `52e9a1f676dca923a474124862978eac936d79cf`): 16 TEST records, 16 retrieval-evaluable, Success@5 14/16 = 87.5%, Recall@5 87.5%, Claim Recall 77.9%, Context Precision 41.2%, Faithfulness 81.4%. Attempt #1 (`bdc256317f055d9b6385cb3973b3fda54c1ce264`) is preserved as INTERRUPTED (citation validation runtime exception, no quality metrics).
+Stage 15 — Full-chain Final Acceptance (Stage 15A Real Browser E2E, Stage 15B High-Aesthetic Regression, Stage 15C Final Regression + DEV Retriever Ablation + Local Latency Smoke).
+- Stage 15C implementation/evaluation: PASS
+- Stage 15 checkpoint: PENDING REVIEW
 
 ## Current Blockers
 
@@ -162,11 +165,27 @@ None.
 
 ## Next Gate
 
-Stage 15 — Full-chain Final Acceptance.
+Stage 16 — User Documentation & Project Packaging.
 
-## Next Stage
+### Stage 16 User Guide Mandatory Requirements
 
-Stage 15 — Full-chain Final Acceptance.
+Stage 16 User Guide (`docs/USER_GUIDE.md` / `README.md`) MUST explicitly include the following 15 sections:
+
+1. **系统用途**：面向户外功能服装智能养护的垂直领域可追溯 RAG 问答系统。
+2. **支持的知识范围**：防水外壳 (GORE-TEX / 冲锋衣)、DWR 防泼水涂层恢复、羽绒服装护理、软壳与抓绒透气保暖护理。
+3. **当前 KB 概况**：14 个官方来源，234 个知识切片（包含 Arc'teryx、GORE-TEX、Patagonia、Nikwax 等权威指南）。
+4. **推荐提问方式**：提问应包含完整且具体的服装类型、面料材质/技术（如 GORE-TEX、DWR、白鹅绒）以及具体的护理环节（水温、洗涤剂类型、烘干温度等）。
+5. **示例问题**：提供一键填入并可复现的高质量示例（如冲锋衣机洗水温、不挂水珠恢复方法、羽绒服结团处理等）。
+6. **单轮问答 / 无记忆说明**：**FORAG 当前采用单轮问答模式。每次提交的问题独立处理，系统不会自动使用上一轮对话作为下一轮问题的上下文。因此后续提问应再次说明服装类型、材质/技术、品牌和具体问题。**
+7. **answered 状态说明**：证据充分，基于官方资料生成可靠养护建议并严格标注行内引用 `[E#]`。
+8. **needs_more_information 状态说明**：输入缺少必要上下文（如面料类型、洗标信息），系统拒绝凭空推断并引导补充信息。
+9. **insufficient_evidence 状态说明**：超出知识库范围或证据不足，系统明确告知并安全终止。
+10. **Sources 的含义**：代表最终回答实际引用 / 投射的官方来源清单（包含文档标题、章节标题、官方出处链接）。
+11. **Evidence / 候选检索结果的含义**：代表多路混合检索与 Cross-Encoder 重排筛选出的 Top-5 核心候选切片（在 `answered` 状态下为回答依据，在 `needs_more_information` / `insufficient_evidence` 状态下明确标注为候选参考，不作为最终回答依据）。
+12. **Retrieval Process 如何查看**：说明右侧面板中 Query Analysis → BM25+Dense 并行召回 → RRF (k=60) 融合 → Cross-Encoder 重排 → Evidence Judge 证据判定 → 最终路由决策各步骤的含义。
+13. **Metrics 页面如何理解**：说明 6 项评测指标含义（Recall@5 87.5%、Claim Recall 77.9%、Context Precision 41.2%、Faithfulness 81.4% 等），以及 Context Precision 41.2% 作为当前系统主要限制的客观原因。
+14. **系统当前能力边界**：明确系统不提供跨领域医疗、穿搭导购推荐或无依据推测。
+15. **常见使用问题**：涵盖连续追问处理、专业洗涤剂选择、低温烘干激活注意点等常见问答。
 
 ## Retrieval / Agent Status
 
@@ -181,6 +200,7 @@ Stage 9A shared transport and Agent contracts are DONE / PASS. Stage 9B routing,
 
 ## Git Checkpoints
 
+- `ce8c82e docs: freeze official final evaluation results` (Stage 14 Official Result Freeze)
 - `52e9a1f fix: reconcile answer citations deterministically` (Stage 14 Citation Runtime Bug Fix)
 - `bdc2563 fix: harden final evaluation preflight` (Stage 14 Final Evaluation Preflight Hardening)
 - `4590815 feat: freeze final evaluation contract` (Stage 14 Final Evaluation Contract Freeze)

@@ -144,9 +144,17 @@ def test_health_metrics_and_configured_cors() -> None:
 
     assert health.status_code == 200
     assert health.json()["runtime"] == "initialized"
-    assert metrics.json() == {
-        "available": False,
-        "metrics": None,
-        "reason": "Final full-system evaluation has not been run.",
-    }
+    assert metrics.status_code == 200
+    metrics_body = metrics.json()
+    assert metrics_body["available"] is True
+    assert metrics_body["reason"] is None
+    assert metrics_body["metrics"]["recall_at_5"] == 87.5
+    assert metrics_body["metrics"]["success_at_5"] == 87.5
+    assert metrics_body["metrics"]["claim_recall"] == 77.9
+    assert metrics_body["metrics"]["context_precision"] == 41.2
+    assert metrics_body["metrics"]["faithfulness"] == 81.4
+    assert metrics_body["metrics"]["test_samples"] == 16
+    assert metrics_body["metrics"]["metric_unit"] == "percent"
+    assert metrics_body["metrics"]["system_commit"] == "52e9a1f676dca923a474124862978eac936d79cf"
+    assert metrics_body["metrics"]["official_run_id"] == "stage14_official_attempt2_52e9a1f"
     assert cors.headers["access-control-allow-origin"] == "http://frontend.test"

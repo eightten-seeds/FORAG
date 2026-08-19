@@ -1,0 +1,19 @@
+{
+  "system_commit": "52e9a1f676dca923a474124862978eac936d79cf",
+  "official_run_id": "stage14_official_attempt2_52e9a1f",
+  "kb_version": "kb_v1",
+  "test_samples": 16,
+  "retrieval_evaluable_samples": 16,
+  "embedding_model": "intfloat/multilingual-e5-small",
+  "reranker_model": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+  "pipeline_llm_model": "qwen3.7-plus-2026-05-26",
+  "ragchecker_extractor_model": "qwen3.7-plus-2026-05-26",
+  "ragchecker_checker_model": "qwen3.7-plus-2026-05-26",
+  "success_at_5": 87.5,
+  "recall_at_5": 87.5,
+  "claim_recall": 77.9,
+  "context_precision": 41.2,
+  "faithfulness": 81.4,
+  "metric_unit": "percent",
+  "timestamp": "2026-08-18T15:58:37.803421+00:00"
+}

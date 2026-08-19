@@ -2,14 +2,22 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.schemas import ChatRequest, ChatResponse, HealthResponse, MetricsResponse
+from backend.app.api.schemas import (
+    ChatRequest,
+    ChatResponse,
+    HealthResponse,
+    MetricsResponse,
+    PublishedMetricsSnapshot,
+)
 from backend.app.config import Settings, get_settings
 from backend.app.logging_config import configure_logging
 from backend.app.observability import request_timing, time_stage
@@ -49,12 +57,17 @@ def create_app(
         description="Stage 11A backend integration for the grounded RAG Agent.",
         lifespan=lifespan,
     )
+    cors_origins = list({
+        app_settings.frontend_url,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    })
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[app_settings.frontend_url],
+        allow_origins=cors_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
     )
 
     def runtime_or_503(request: Request) -> AppRuntime:
@@ -94,11 +107,28 @@ def create_app(
 
     @app.get("/api/metrics", response_model=MetricsResponse, tags=["system"])
     def metrics() -> MetricsResponse:
-        return MetricsResponse(
-            available=False,
-            metrics=None,
-            reason="Final full-system evaluation has not been run.",
-        )
+        metrics_file = Path(__file__).resolve().parent / "evaluation" / "official_metrics.json"
+        if not metrics_file.is_file():
+            return MetricsResponse(
+                available=False,
+                metrics=None,
+                reason="Official final evaluation snapshot is unavailable.",
+            )
+        try:
+            raw_data = json.loads(metrics_file.read_text(encoding="utf-8"))
+            snapshot = PublishedMetricsSnapshot.model_validate(raw_data)
+            return MetricsResponse(
+                available=True,
+                metrics=snapshot,
+                reason=None,
+            )
+        except Exception:
+            logger.exception("Failed to load official metrics snapshot")
+            return MetricsResponse(
+                available=False,
+                metrics=None,
+                reason="Failed to load official final evaluation snapshot.",
+            )
 
     @app.post("/api/chat", response_model=ChatResponse, tags=["chat"])
     def chat(payload: ChatRequest, request: Request) -> ChatResponse:

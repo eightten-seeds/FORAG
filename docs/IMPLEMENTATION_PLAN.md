@@ -1362,7 +1362,7 @@ Faithfulness
 
 ------
 
-# 16. 阶段13：Integrated / Final Evaluation
+# 16. 阶段13：Integrated DEV Evaluation
 
 Stage 5C 已完成 standalone Hybrid Retriever 的 Frozen Golden Dataset dev/test evaluation 与参数冻结。本阶段仅在 Query Analysis、Agent、Answer 等完整系统实现后，评估集成链路；不得使用 Stage 5C test misses 重新调整已冻结的 Retriever 参数。
 
