@@ -6,6 +6,7 @@ import {
   computeProcessSummary,
   createRequestGate,
   formatRequestSeconds,
+  formatRetrievalCount,
   presentBusinessStatus,
   presentEvidenceSemantics,
 } from './chatPresentation.js'
@@ -473,11 +474,11 @@ async function submitQuestion() {
                   <div class="parallel-box-grid">
                     <div class="parallel-cell">
                       <span class="cell-label">BM25 文本检索</span>
-                      <strong class="cell-val">Top {{ result.trace.retrieval_passes?.[0]?.bm25_count || 20 }}</strong>
+                      <strong class="cell-val">{{ formatRetrievalCount(result.trace.retrieval_passes?.[0]?.bm25_count) }}</strong>
                     </div>
                     <div class="parallel-cell">
                       <span class="cell-label">Dense 向量检索</span>
-                      <strong class="cell-val">Top {{ result.trace.retrieval_passes?.[0]?.dense_count || 20 }}</strong>
+                      <strong class="cell-val">{{ formatRetrievalCount(result.trace.retrieval_passes?.[0]?.dense_count) }}</strong>
                     </div>
                   </div>
                 </div>
@@ -491,7 +492,7 @@ async function submitQuestion() {
                     <strong class="node-title">RRF 融合 (k=60)</strong>
                   </div>
                   <p class="node-sub">
-                    去重融合至 <strong>Top {{ result.trace.retrieval_passes?.[0]?.rrf_count || 30 }}</strong> 候选切片集合
+                    去重融合至 <strong>{{ formatRetrievalCount(result.trace.retrieval_passes?.[0]?.rrf_count) }}</strong> 候选切片集合
                   </p>
                 </div>
 
@@ -504,7 +505,7 @@ async function submitQuestion() {
                     <strong class="node-title">Cross-Encoder 重排</strong>
                   </div>
                   <p class="node-sub">
-                    多语言语义交互打分，筛选 <strong>Top {{ result.trace.retrieval_passes?.[0]?.reranked_count || 5 }}</strong> 最优切片
+                    多语言语义交互打分，筛选 <strong>{{ formatRetrievalCount(result.trace.retrieval_passes?.[0]?.reranked_count) }}</strong> 最优切片
                   </p>
                 </div>
 

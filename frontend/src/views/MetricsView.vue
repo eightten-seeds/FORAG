@@ -106,7 +106,7 @@ onMounted(async () => {
               <div class="item-text-group">
                 <strong class="item-headline">正确证据最终召回表现稳定 (Recall@5 = 87.5%)</strong>
                 <p class="item-body">
-                  在 16 个真实测试样本中，14 个样本在最终 Top-5 准确命中了目标黄金切片。相比单阶段检索 baseline，混合检索与 Cross-Encoder 重排组合观察到了稳健的系统级增益。
+                  在 16 个真实测试样本中，14 个样本在最终 Top-5 准确命中了目标黄金切片。最终集成系统相较 standalone retrieval baseline，Recall@5 观察到 +12.5 个百分点差异。由于未对所有集成模块进行独立因果消融，不将该差异归因于单一组件。
                 </p>
               </div>
             </div>
@@ -134,9 +134,9 @@ onMounted(async () => {
             <div class="analysis-item-row">
               <span class="item-index">04</span>
               <div class="item-text-group">
-                <strong class="item-headline">生成内容高度忠实于检索证据 (Faithfulness = 81.4%)</strong>
+                <strong class="item-headline">生成内容证据支撑度 (Faithfulness = 81.4%)</strong>
                 <p class="item-body">
-                  回答严格依赖检索上下文生成并标注出处，有效抑制了模型凭空编造；在证据不足或信息缺失时，系统能够按照设计进行安全拒绝或引导补充。
+                  多数生成内容能够得到检索证据支持，但仍存在弱支持或证据不足的情况；在证据不足或信息缺失时，系统能够按照设计进行安全拒绝或引导补充。
                 </p>
               </div>
             </div>

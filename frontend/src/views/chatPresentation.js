@@ -90,6 +90,13 @@ export function formatRequestSeconds(elapsedMs) {
   return `${(elapsedMs / 1000).toFixed(1)} 秒`
 }
 
+export function formatRetrievalCount(count) {
+  if (count === undefined || count === null) {
+    return '未记录'
+  }
+  return `Top ${count}`
+}
+
 export function createRequestGate() {
   let busy = false
   return {

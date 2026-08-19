@@ -23,10 +23,10 @@ FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与�
   - 完成 8 张全景真实渲染快照归档（涵盖正常回答、信息缺失引导、越界安全拒绝、评测指标展示与移动端响应式布局）。
 
 ### Stage 15B — Frontend Product Finish & High-Aesthetic Regression (CLOSED)
-- **目标**：完成前端界面高质感视觉定型（High-Aesthetic Final Art Direction）与 67 项全量无死角回归。
+- **目标**：完成前端界面高质感视觉定型（High-Aesthetic Final Art Direction）与 67 项前端回归检查。
 - **完成项**：
   - 视觉冻结为 02:08 高质感版式，修正 Cross-Encoder 冗余文案。
-  - 完成 67 项全覆盖验证矩阵：业务状态机（`answered`, `needs_more_information`, `insufficient_evidence`）、交互安全（XSS 转义、`v-html` 0 出现、外链安全性）、防重复提交门禁、异常捕获与降级（Chat 500、Network Failure、Health 离线告警、Metrics 异常提示）。
+  - 完成 67 项前端回归检查，覆盖主要业务状态、交互、错误、安全与响应式场景（业务状态机 `answered`, `needs_more_information`, `insufficient_evidence`、交互安全 XSS 转义、`v-html` 0 出现、外链安全性、防重复提交门禁、异常捕获与降级 Chat 500、Network Failure、Health 离线告警、Metrics 异常提示）。
   - 验证多分辨率适配（1366×768 首屏无遮挡、1920×1080 居中双栏、800×1024 平板单栏流）。
   - 前端单元测试 7/7 全部通过，Vite 生产构建 0 错误。
 
@@ -142,7 +142,7 @@ FORAG（Fashion-Care Outdoor RAG）在 Stage 15 阶段完成了全栈交付与�
 | **Recall@5** (切片召回率) | **87.5%** | 75.0% | 14 个样本在最终 Top-5 中精确召回了目标黄金切片。 |
 | **Claim Recall** (事实覆盖率) | **77.9%** | N/A (Stage 14 新增) | 生成回答覆盖了参考答案中 77.9% 的核心事实声明；多条件复杂场景仍有部分细节遗漏。 |
 | **Context Precision** (上下文纯度) | **41.2%** | N/A (Stage 14 新增) | **系统当前主要性能限制**。Top-5 候选切片中包含部分未引用的背景描述，为后续迭代重点。 |
-| **Faithfulness** (事实忠实度) | **81.4%** | N/A (Stage 14 新增) | 生成内容高度忠实于检索切片，严格杜绝凭空编造。 |
+| **Faithfulness** (事实忠实度) | **81.4%** | N/A (Stage 14 新增) | 多数生成内容能够得到检索证据支持，但仍存在弱支持或证据不足的情况。 |
 
 ---
 

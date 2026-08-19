@@ -6,6 +6,7 @@ import {
   computeProcessSummary,
   createRequestGate,
   formatRequestSeconds,
+  formatRetrievalCount,
   presentBusinessStatus,
   presentEvidenceSemantics,
 } from '../src/views/chatPresentation.js'
@@ -197,4 +198,15 @@ test('API client maps official metrics response', async () => {
   assert.equal(res.available, true)
   assert.equal(res.metrics.recall_at_5, 87.5)
   assert.equal(res.metrics.context_precision, 41.2)
+})
+
+test('retrieval count presentation avoids fake fallbacks when counts are missing', () => {
+  // Real valid numbers
+  assert.equal(formatRetrievalCount(20), 'Top 20')
+  assert.equal(formatRetrievalCount(5), 'Top 5')
+  assert.equal(formatRetrievalCount(0), 'Top 0')
+
+  // Missing values (null / undefined) do not invent fake 20/30/5
+  assert.equal(formatRetrievalCount(undefined), '未记录')
+  assert.equal(formatRetrievalCount(null), '未记录')
 })
